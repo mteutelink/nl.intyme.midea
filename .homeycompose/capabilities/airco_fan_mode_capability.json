@@ -1,0 +1,214 @@
+{
+	"type": "enum",
+	"title": {
+		"en": "Airco fan mode"
+	},
+	"desc": {
+		"en": "Mode of the fan"
+	},
+	"values": [
+		{
+			"id": "silent",
+			"title": {
+				"en": "Silent (20%)"
+			}
+		},
+		{
+			"id": "low",
+			"title": {
+				"en": "Low (40%)"
+			}
+		},
+		{
+			"id": "medium",
+			"title": {
+				"en": "Medium (60%)"
+			}
+		},
+		{
+			"id": "high",
+			"title": {
+				"en": "High (80%)"
+			}
+		},
+		{
+			"id": "full",
+			"title": {
+				"en": "Full (100%)"
+			}
+		},
+		{
+			"id": "fixed",
+			"title": {
+				"en": "Fixed"
+			}
+		},
+		{
+			"id": "auto",
+			"title": {
+				"en": "Auto"
+			}
+		}
+	],
+	"getable": true,
+	"setable": true,
+	"uiComponent": "picker",
+	"$flow": {
+		"triggers": [
+			{
+				"id": "airco_fan_mode_changed",
+				"title": {
+					"en": "Airco fan mode has changed"
+				},
+				"args": [
+					{
+						"name": "airco_fan_mode",
+						"type": "dropdown",
+						"values": [
+							{
+								"id": "silent",
+								"title": {
+									"en": "Silent"
+								}
+							},
+							{
+								"id": "low",
+								"title": {
+									"en": "Low"
+								}
+							},
+							{
+								"id": "medium",
+								"title": {
+									"en": "Medium"
+								}
+							},
+							{
+								"id": "high",
+								"title": {
+									"en": "High"
+								}
+							},
+							{
+								"id": "full",
+								"title": {
+									"en": "Full"
+								}
+							},
+							{
+								"id": "auto",
+								"title": {
+									"en": "Auto"
+								}
+							}
+						]
+					}
+				]
+			}
+		],
+		"conditions": [
+			{
+				"id": "airco_fan_mode_is",
+				"title": {
+					"en": "Airco fan mode !{{is|is not}}"
+				},
+				"args": [
+					{
+						"name": "airco_fan_mode",
+						"type": "dropdown",
+						"values": [
+							{
+								"id": "silent",
+								"title": {
+									"en": "Silent"
+								}
+							},
+							{
+								"id": "low",
+								"title": {
+									"en": "Low"
+								}
+							},
+							{
+								"id": "medium",
+								"title": {
+									"en": "Medium"
+								}
+							},
+							{
+								"id": "high",
+								"title": {
+									"en": "High"
+								}
+							},
+							{
+								"id": "full",
+								"title": {
+									"en": "Full"
+								}
+							},
+							{
+								"id": "auto",
+								"title": {
+									"en": "Auto"
+								}
+							}
+						]
+					}
+				]
+			}
+		],
+		"actions": [
+			{
+				"id": "airco_fan_mode_set",
+				"title": {
+					"en": "Set the fan mode"
+				},
+				"args": [
+					{
+						"name": "airco_fan_mode",
+						"type": "dropdown",
+						"values": [
+							{
+								"id": "silent",
+								"title": {
+									"en": "Silent"
+								}
+							},
+							{
+								"id": "low",
+								"title": {
+									"en": "Low"
+								}
+							},
+							{
+								"id": "medium",
+								"title": {
+									"en": "Medium"
+								}
+							},
+							{
+								"id": "high",
+								"title": {
+									"en": "High"
+								}
+							},
+							{
+								"id": "full",
+								"title": {
+									"en": "Full"
+								}
+							},
+							{
+								"id": "auto",
+								"title": {
+									"en": "Auto"
+								}
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

@@ -1,0 +1,37 @@
+{
+  "id": "nl.intyme.homey.midea",
+  "version": "1.0.1",
+  "compatibility": ">=12.2.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Midea"
+  },
+  "description": {
+    "en": "Adds support for Midea appliances."
+  },
+  "category": [
+    "climate"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Marc Teutelink",
+    "email": "marc@teutelink.nl"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Marc Teutelink"
+      }
+    ],
+    "translators": []
+  },
+  "brandColor": "#498ff2"
+}

@@ -1,0 +1,278 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "nl.intyme.homey.midea",
+  "version": "1.0.1",
+  "compatibility": ">=12.2.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Midea"
+  },
+  "description": {
+    "en": "Adds support for Midea appliances."
+  },
+  "category": [
+    "climate"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Marc Teutelink",
+    "email": "marc@teutelink.nl"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Marc Teutelink"
+      }
+    ],
+    "translators": []
+  },
+  "brandColor": "#498ff2",
+  "drivers": [
+    {
+      "name": {
+        "en": "Airconditioning"
+      },
+      "class": "thermostat",
+      "capabilities": [
+        "onoff",
+        "target_temperature",
+        "measure_temperature",
+        "measure_temperature.outside",
+        "airco_mode_capability",
+        "airco_boost_capability",
+        "airco_fan_mode_capability",
+        "airco_swing_mode_capability"
+      ],
+      "capabilitiesOptions": {
+        "target_temperature": {
+          "min": 16,
+          "max": 30,
+          "step": 1
+        },
+        "measure_temperature": {
+          "title": {
+            "en": "Inside temperature",
+            "nl": "Binnentemperatuur"
+          }
+        },
+        "measure_temperature.outside": {
+          "title": {
+            "en": "Outside temperature",
+            "nl": "Buitentemperatuur"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "options": {
+            "singular": true
+          },
+          "navigation": {
+            "next": "login_credentials"
+          }
+        },
+        {
+          "id": "login_credentials",
+          "options": {
+            "logo": "/drivers/airco/assets/icon.svg",
+            "title": {
+              "en": "Log in with your credentials"
+            },
+            "usernameLabel": {
+              "en": "E-mail address"
+            },
+            "usernamePlaceholder": {
+              "en": "john@doe.com"
+            },
+            "passwordLabel": {
+              "en": "Password"
+            },
+            "passwordPlaceholder": {
+              "en": "Password"
+            }
+          },
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "s": {
+        "small": "/drivers/airco/assets/images/small.png",
+        "large": "/drivers/airco/assets/images/large.png",
+        "xlarge": "/drivers/airco/assets/images/xlarge.png"
+      },
+      "id": "airco"
+    }
+  ],
+  "capabilities": {
+    "airco_boost_capability": {
+      "type": "boolean",
+      "title": {
+        "en": "Airco boost"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "uiQuickAction": true,
+      "icon": "/assets/images/boost_capability.svg"
+    },
+    "airco_fan_mode_capability": {
+      "type": "enum",
+      "title": {
+        "en": "Airco fan mode"
+      },
+      "desc": {
+        "en": "Mode of the fan"
+      },
+      "values": [
+        {
+          "id": "silent",
+          "title": {
+            "en": "Silent (20%)"
+          }
+        },
+        {
+          "id": "low",
+          "title": {
+            "en": "Low (40%)"
+          }
+        },
+        {
+          "id": "medium",
+          "title": {
+            "en": "Medium (60%)"
+          }
+        },
+        {
+          "id": "high",
+          "title": {
+            "en": "High (80%)"
+          }
+        },
+        {
+          "id": "full",
+          "title": {
+            "en": "Full (100%)"
+          }
+        },
+        {
+          "id": "fixed",
+          "title": {
+            "en": "Fixed"
+          }
+        },
+        {
+          "id": "auto",
+          "title": {
+            "en": "Auto"
+          }
+        }
+      ],
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker"
+    },
+    "airco_mode_capability": {
+      "type": "enum",
+      "title": {
+        "en": "Airco mode"
+      },
+      "desc": {
+        "en": "Mode of the airco"
+      },
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Automatic"
+          }
+        },
+        {
+          "id": "cool",
+          "title": {
+            "en": "Cool"
+          }
+        },
+        {
+          "id": "dry",
+          "title": {
+            "en": "Dry"
+          }
+        },
+        {
+          "id": "heat",
+          "title": {
+            "en": "Heat"
+          }
+        },
+        {
+          "id": "fan",
+          "title": {
+            "en": "Fan"
+          }
+        }
+      ],
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker"
+    },
+    "airco_swing_mode_capability": {
+      "type": "enum",
+      "title": {
+        "en": "Airco swing mode"
+      },
+      "desc": {
+        "en": "Mode of the swing"
+      },
+      "values": [
+        {
+          "id": "off",
+          "title": {
+            "en": "Off"
+          }
+        },
+        {
+          "id": "vertical",
+          "title": {
+            "en": "Vertical"
+          }
+        },
+        {
+          "id": "horizontal",
+          "title": {
+            "en": "Horizontal"
+          }
+        },
+        {
+          "id": "both",
+          "title": {
+            "en": "Both"
+          }
+        }
+      ],
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker"
+    }
+  }
+}

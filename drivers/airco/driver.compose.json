@@ -1,0 +1,72 @@
+{
+  "name": {
+    "en": "Airconditioning"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "onoff",
+    "target_temperature",
+    "measure_temperature",
+    "measure_temperature.outside",
+    "airco_mode_capability",
+    "airco_boost_capability",
+    "airco_fan_mode_capability",
+    "airco_swing_mode_capability"
+  ],
+	"capabilitiesOptions": {
+		"target_temperature": {
+			"min": 16,
+			"max": 30,
+			"step": 1
+		},
+		"measure_temperature": {
+      "title": { "en": "Inside temperature", "nl": "Binnentemperatuur"}
+		},
+		"measure_temperature.outside": {
+      "title": { "en": "Outside temperature", "nl": "Buitentemperatuur"}
+		}
+	},
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
+  "pair": [
+     {
+      "id": "list_devices",
+      "template": "list_devices",
+      "options": { 
+        "singular": true 
+      },
+      "navigation": {
+        "next": "login_credentials"
+      }
+    },
+    {
+      "id": "login_credentials",
+      "options": {
+        "logo": "{{driverAssetsPath}}/icon.svg",
+        "title": {
+          "en": "Log in with your credentials"
+        },
+        "usernameLabel": { "en": "E-mail address" },
+        "usernamePlaceholder": { "en": "john@doe.com" },
+        "passwordLabel": { "en": "Password" },
+        "passwordPlaceholder": { "en": "Password" }
+      },
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "s": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  }
+}
