@@ -132,7 +132,6 @@
           "value": 15,
           "min": 15,
           "max": 600,
-          "step": 15,
           "units": {
             "en": "seconds"
           }
