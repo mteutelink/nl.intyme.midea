@@ -5,13 +5,13 @@
   "class": "thermostat",
   "capabilities": [
     "onoff",
+    "thermostat_mode",
     "target_temperature",
     "measure_temperature",
     "measure_temperature.outside",
-    "airco_mode_capability",
-    "airco_boost_capability",
-    "airco_fan_mode_capability",
-    "airco_swing_mode_capability"
+    "thermostat_boost",
+    "thermostat_fan_speed",
+    "thermostat_swing_mode"
   ],
 	"capabilitiesOptions": {
 		"target_temperature": {

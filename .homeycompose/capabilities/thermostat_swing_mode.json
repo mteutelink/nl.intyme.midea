@@ -1,7 +1,7 @@
 {
 	"type": "enum",
 	"title": {
-		"en": "Airco swing mode"
+		"en": "Swing mode"
 	},
 	"desc": {
 		"en": "Mode of the swing"
@@ -38,13 +38,13 @@
 	"$fvertical": {
 		"triggers": [
 			{
-				"id": "airco_swing_mode_changed",
+				"id": "swing_mode_changed",
 				"title": {
-					"en": "Airco swing mode has changed"
+					"en": "Swing mode has changed"
 				},
 				"args": [
 					{
-						"name": "airco_swing_mode",
+						"name": "swing_mode",
 						"type": "dropdown",
 						"values": [
 							{
@@ -78,13 +78,13 @@
 		],
 		"conditions": [
 			{
-				"id": "airco_swing_mode_is",
+				"id": "swing_mode_is",
 				"title": {
-					"en": "Airco swing mode !{{is|is not}}"
+					"en": "Swing mode !{{is|is not}}"
 				},
 				"args": [
 					{
-						"name": "airco_swing_mode",
+						"name": "swing_mode",
 						"type": "dropdown",
 						"values": [
 							{
@@ -118,13 +118,13 @@
 		],
 		"actions": [
 			{
-				"id": "airco_swing_mode_set",
+				"id": "swing_mode_set",
 				"title": {
 					"en": "Set the swing mode"
 				},
 				"args": [
 					{
-						"name": "airco_swing_mode",
+						"name": "swing_mode",
 						"type": "dropdown",
 						"values": [
 							{

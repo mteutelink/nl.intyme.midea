@@ -1,9 +1,9 @@
 {
 	"type": "boolean",
-	"title": { "en": "Airco boost" },
+	"title": { "en": "Boost" },
 	"getable": true,
 	"setable": true,
 	"uiComponent": "toggle",
 	"uiQuickAction": true,
-	"icon": "/assets/images/boost_capability.svg"
+	"icon": "/assets/images/thermostat_boost.svg"
   }

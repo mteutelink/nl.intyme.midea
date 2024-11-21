@@ -1,10 +1,10 @@
 {
 	"type": "enum",
 	"title": {
-		"en": "Airco fan mode"
+		"en": "Fan speed"
 	},
 	"desc": {
-		"en": "Mode of the fan"
+		"en": "Speed of the fan"
 	},
 	"values": [
 		{
@@ -56,13 +56,13 @@
 	"$flow": {
 		"triggers": [
 			{
-				"id": "airco_fan_mode_changed",
+				"id": "fan_speed_changed",
 				"title": {
-					"en": "Airco fan mode has changed"
+					"en": "Fam speed has changed"
 				},
 				"args": [
 					{
-						"name": "airco_fan_mode",
+						"name": "fan_speed",
 						"type": "dropdown",
 						"values": [
 							{
@@ -108,13 +108,13 @@
 		],
 		"conditions": [
 			{
-				"id": "airco_fan_mode_is",
+				"id": "fan_speed_is",
 				"title": {
-					"en": "Airco fan mode !{{is|is not}}"
+					"en": "Fan speed !{{is|is not}}"
 				},
 				"args": [
 					{
-						"name": "airco_fan_mode",
+						"name": "fan_speed",
 						"type": "dropdown",
 						"values": [
 							{
@@ -160,13 +160,13 @@
 		],
 		"actions": [
 			{
-				"id": "airco_fan_mode_set",
+				"id": "fan_speed_set",
 				"title": {
-					"en": "Set the fan mode"
+					"en": "Set the fan speed"
 				},
 				"args": [
 					{
-						"name": "airco_fan_mode",
+						"name": "fan_speed",
 						"type": "dropdown",
 						"values": [
 							{

@@ -1,5 +1,5 @@
 import Homey from 'homey';
-import { Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, SecurityContext as MSecurityContext, SecurityContext, SetStateCommand } from 'midea-msmarthome-ac-euosk105';
+import { Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, SecurityContext as MSecurityContext, SetStateCommand } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, OPERATIONAL_MODE, SWING_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
 class MyDevice extends Homey.Device {
@@ -27,10 +27,10 @@ class MyDevice extends Homey.Device {
 
     this.registerCapabilityListener("onoff", async (value, opts) => { return this.onCapability("onoff", value, opts); });
     this.registerCapabilityListener("target_temperature", async (value, opts) => { return this.onCapability("target_temperature", value, opts); });
-    this.registerCapabilityListener("airco_mode_capability", async (value, opts) => { return this.onCapability("airco_mode_capability", value, opts); });
-    this.registerCapabilityListener("airco_boost_capability", async (value, opts) => { return this.onCapability("airco_boost_capability", value, opts); });
-    this.registerCapabilityListener("airco_fan_mode_capability", async (value, opts) => { return this.onCapability("airco_fan_mode_capability", value, opts); });
-    this.registerCapabilityListener("airco_swing_mode_capability", async (value, opts) => { return this.onCapability("airco_swing_mode_capability", value, opts); });
+    this.registerCapabilityListener("thermostat_mode", async (value, opts) => { return this.onCapability("thermostat_mode", value, opts); });
+    this.registerCapabilityListener("thermostat_boost", async (value, opts) => { return this.onCapability("thermostat_boost", value, opts); });
+    this.registerCapabilityListener("thermostat_fan_speed", async (value, opts) => { return this.onCapability("thermostat_fan_speed", value, opts); });
+    this.registerCapabilityListener("thermostat_swing_mode", async (value, opts) => { return this.onCapability("thermostat_swing_mode", value, opts); });
     
     const settings = this.getSettings();
     this._initializePolling(settings.polling_interval);
@@ -53,30 +53,34 @@ class MyDevice extends Homey.Device {
   private _updateState(state: DeviceState) {
     this.log("state = " + JSON.stringify(state));
     this.setCapabilityValue("onoff", state.powerOn);
-    this.setCapabilityValue("airco_boost_capability", state.turboMode);
+    if (state.powerOn) {
+      switch (state.operationalMode) {
+        case OPERATIONAL_MODE.AUTO: this.setCapabilityValue("thermostat_mode", "auto"); break;
+        case OPERATIONAL_MODE.COOL: this.setCapabilityValue("thermostat_mode", "cool"); break;
+        case OPERATIONAL_MODE.HEAT: this.setCapabilityValue("thermostat_mode", "heat"); break;
+        case OPERATIONAL_MODE.DRY: this.log("Thermostat mode 'dry' not supported"); break;
+        case OPERATIONAL_MODE.FAN: this.log("Thermostat mode 'fan' not supported"); break;
+      }
+    } else {
+      this.setCapabilityValue("thermostat_mode", "off");
+    }
+    this.setCapabilityValue("thermostat_boost", state.turboMode);
     this.setCapabilityValue("target_temperature", state.targetTemperature);
     this.setCapabilityValue("measure_temperature", state.indoorTemperature);
     this.setCapabilityValue("measure_temperature.outside", state.outdoorTemperature);
-    switch (state.operationalMode) {
-      case OPERATIONAL_MODE.AUTO: this.setCapabilityValue("airco_mode_capability", "auto"); break;
-      case OPERATIONAL_MODE.COOL: this.setCapabilityValue("airco_mode_capability", "cool"); break;
-      case OPERATIONAL_MODE.DRY: this.setCapabilityValue("airco_mode_capability", "dry"); break;
-      case OPERATIONAL_MODE.HEAT: this.setCapabilityValue("airco_mode_capability", "heat"); break;
-      case OPERATIONAL_MODE.FAN: this.setCapabilityValue("airco_mode_capability", "fan"); break;
-    }
     switch (state.fanSpeed) {
-      case FAN_SPEED.AUTO: this.setCapabilityValue("airco_fan_mode_capability", "auto"); break;
-      case FAN_SPEED.FIXED: this.setCapabilityValue("airco_fan_mode_capability", "fixed"); break;
-      case FAN_SPEED.SILENT: this.setCapabilityValue("airco_fan_mode_capability", "silent"); break;
-      case FAN_SPEED.LOW: this.setCapabilityValue("airco_fan_mode_capability", "low"); break;
-      case FAN_SPEED.MEDIUM: this.setCapabilityValue("airco_fan_mode_capability", "medium"); break;
-      case FAN_SPEED.HIGH: this.setCapabilityValue("airco_fan_mode_capability", "high"); break;
+      case FAN_SPEED.AUTO: this.setCapabilityValue("thermostat_fan_speed", "auto"); break;
+      case FAN_SPEED.FIXED: this.setCapabilityValue("thermostat_fan_speed", "fixed"); break;
+      case FAN_SPEED.SILENT: this.setCapabilityValue("thermostat_fan_speed", "silent"); break;
+      case FAN_SPEED.LOW: this.setCapabilityValue("thermostat_fan_speed", "low"); break;
+      case FAN_SPEED.MEDIUM: this.setCapabilityValue("thermostat_fan_speed", "medium"); break;
+      case FAN_SPEED.HIGH: this.setCapabilityValue("thermostat_fan_speed", "high"); break;
     }
     switch (state.swingMode) {
-      case SWING_MODE.OFF: this.setCapabilityValue("airco_swing_mode_capability", "off"); break;
-      case SWING_MODE.BOTH: this.setCapabilityValue("airco_swing_mode_capability", "both"); break;
-      case SWING_MODE.VERTICAL: this.setCapabilityValue("airco_swing_mode_capability", "vertical"); break;
-      case SWING_MODE.HORIZONTAL: this.setCapabilityValue("airco_swing_mode_capability", "horizontal"); break;
+      case SWING_MODE.OFF: this.setCapabilityValue("thermostat_swing_mode", "off"); break;
+      case SWING_MODE.BOTH: this.setCapabilityValue("thermostat_swing_mode", "both"); break;
+      case SWING_MODE.VERTICAL: this.setCapabilityValue("thermostat_swing_mode", "vertical"); break;
+      case SWING_MODE.HORIZONTAL: this.setCapabilityValue("thermostat_swing_mode", "horizontal"); break;
     }
   } 
 
@@ -135,18 +139,17 @@ class MyDevice extends Homey.Device {
       switch (capability) {
         case "onoff": state.powerOn = value; break;
         case "target_temperature": state.targetTemperature = value; break;
-        case "airco_mode_capability": {
+        case "thermostat_mode": {
           switch (value) {
-            case "auto": state.operationalMode = OPERATIONAL_MODE.AUTO; break;
-            case "cool": state.operationalMode = OPERATIONAL_MODE.COOL; break;
-            case "dry": state.operationalMode = OPERATIONAL_MODE.DRY; break;
-            case "heat": state.operationalMode = OPERATIONAL_MODE.HEAT; break;
-            case "fan": state.operationalMode = OPERATIONAL_MODE.FAN; break;
+            case "auto": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.AUTO; break;
+            case "cool": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.COOL; break;
+            case "heat": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.HEAT; break;
+            case "off": state.powerOn = false; break;
           }
           break;
         }
-        case "airco_boost_capability": state.turboMode = value; break;
-        case "airco_fan_mode_capability": {
+        case "thermostat_boost": state.turboMode = value; break;
+        case "thermostat_fan_speed": {
           switch (value) {
             case "auto": state.fanSpeed= FAN_SPEED.AUTO; break;
             case "fixed": state.fanSpeed = FAN_SPEED.FIXED; break;
@@ -158,7 +161,7 @@ class MyDevice extends Homey.Device {
           }
           break;
         }
-        case "airco_swing_mode_capability": {
+        case "thermostat_swing_mode": {
           switch (value) {
             case "off": state.swingMode = SWING_MODE.OFF; break;
             case "both": state.swingMode = SWING_MODE.BOTH; break;

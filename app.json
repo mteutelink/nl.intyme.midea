@@ -43,13 +43,13 @@
       "class": "thermostat",
       "capabilities": [
         "onoff",
+        "thermostat_mode",
         "target_temperature",
         "measure_temperature",
         "measure_temperature.outside",
-        "airco_mode_capability",
-        "airco_boost_capability",
-        "airco_fan_mode_capability",
-        "airco_swing_mode_capability"
+        "thermostat_boost",
+        "thermostat_fan_speed",
+        "thermostat_swing_mode"
       ],
       "capabilitiesOptions": {
         "target_temperature": {
@@ -140,24 +140,24 @@
     }
   ],
   "capabilities": {
-    "airco_boost_capability": {
+    "thermostat_boost": {
       "type": "boolean",
       "title": {
-        "en": "Airco boost"
+        "en": "Boost"
       },
       "getable": true,
       "setable": true,
       "uiComponent": "toggle",
       "uiQuickAction": true,
-      "icon": "/assets/images/boost_capability.svg"
+      "icon": "/assets/images/thermostat_boost.svg"
     },
-    "airco_fan_mode_capability": {
+    "thermostat_fan_speed": {
       "type": "enum",
       "title": {
-        "en": "Airco fan mode"
+        "en": "Fan speed"
       },
       "desc": {
-        "en": "Mode of the fan"
+        "en": "Speed of the fan"
       },
       "values": [
         {
@@ -207,54 +207,10 @@
       "setable": true,
       "uiComponent": "picker"
     },
-    "airco_mode_capability": {
+    "thermostat_swing_mode": {
       "type": "enum",
       "title": {
-        "en": "Airco mode"
-      },
-      "desc": {
-        "en": "Mode of the airco"
-      },
-      "values": [
-        {
-          "id": "auto",
-          "title": {
-            "en": "Automatic"
-          }
-        },
-        {
-          "id": "cool",
-          "title": {
-            "en": "Cool"
-          }
-        },
-        {
-          "id": "dry",
-          "title": {
-            "en": "Dry"
-          }
-        },
-        {
-          "id": "heat",
-          "title": {
-            "en": "Heat"
-          }
-        },
-        {
-          "id": "fan",
-          "title": {
-            "en": "Fan"
-          }
-        }
-      ],
-      "getable": true,
-      "setable": true,
-      "uiComponent": "picker"
-    },
-    "airco_swing_mode_capability": {
-      "type": "enum",
-      "title": {
-        "en": "Airco swing mode"
+        "en": "Swing mode"
       },
       "desc": {
         "en": "Mode of the swing"
