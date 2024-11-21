@@ -1,1 +1,1 @@
-Adds support for Midea appliances.
+Midea is the world’s #1 in Air Treatment Brand. Their state-of-the art air conditioners keep your home cool and comfortable. This app makes controlling your living climate more effective and efficient and smarter."

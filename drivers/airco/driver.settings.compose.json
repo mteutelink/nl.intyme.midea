@@ -1,0 +1,12 @@
+[
+	{
+	  "id": "polling_interval",
+	  "type": "number",
+	  "label": { "en": "Polling interval" },
+	  "value": 15,
+	  "min": 15,
+	  "max": 600,
+	  "units": { "en": "seconds" }
+	}
+  ]
+  

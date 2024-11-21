@@ -13,7 +13,7 @@ class MyDevice extends Homey.Device {
    * onInit is called when the device is initialized.
    */
   async onInit() {
-    this.log('MyDevice has been initialized');
+    this.log('Midea AC [' + this.getName() + '] initialized');
 
     const deviceContext: MDeviceContext = new MDeviceContext();
     deviceContext.id = this.getData().id;
@@ -31,14 +31,23 @@ class MyDevice extends Homey.Device {
     this.registerCapabilityListener("airco_boost_capability", async (value, opts) => { return this.onCapability("airco_boost_capability", value, opts); });
     this.registerCapabilityListener("airco_fan_mode_capability", async (value, opts) => { return this.onCapability("airco_fan_mode_capability", value, opts); });
     this.registerCapabilityListener("airco_swing_mode_capability", async (value, opts) => { return this.onCapability("airco_swing_mode_capability", value, opts); });
+    
+    const settings = this.getSettings();
+    this._initializePolling(settings.polling_interval);
+  }
 
+  private _initializePolling(pollingInterval: number) {
+    if (this._intervalId) this.homey.clearInterval(this._intervalId);
     this._intervalId = this.homey.setInterval(async () => {
       if (!this._updatingState) {
-        let command = new GetStateCommand(this._device);
-        const state: DeviceState = await new GetStateCommand(this._device).execute(this._securityContext);
-        this._updateState(state);
+        try {
+          const state: DeviceState = await new GetStateCommand(this._device).execute();
+          this._updateState(state);
+        } catch (err) {
+          this.log("error = " + err);
+        }
       }
-    }, 10000);
+    }, pollingInterval * 1000);
   }
 
   private _updateState(state: DeviceState) {
@@ -75,7 +84,7 @@ class MyDevice extends Homey.Device {
    * onAdded is called when the user adds the device, called just after pairing.
    */
   async onAdded() {
-    this.log('MyDevice has been added');
+    this.log('Midea AC [' + this.getName() + '] has been added');
   }
 
   /**
@@ -95,7 +104,10 @@ class MyDevice extends Homey.Device {
     newSettings: { [key: string]: boolean | string | number | undefined | null };
     changedKeys: string[];
   }): Promise<string | void> {
-    this.log("MyDevice settings where changed");
+
+    if (changedKeys.includes("polling_interval")) {
+      this._initializePolling(+newSettings.polling_interval);
+    }
   }
 
   /**
@@ -104,7 +116,7 @@ class MyDevice extends Homey.Device {
    * @param {string} name The new name
    */
   async onRenamed(name: string) {
-    this.log('MyDevice was renamed');
+    this.log('Midea AC [' + this.getName() + '] was renamed to "' + name + '"');
   }
 
   /**
@@ -112,13 +124,13 @@ class MyDevice extends Homey.Device {
    */
   async onDeleted() {
     this.homey.clearInterval(this._intervalId);
-    this.log('MyDevice has been deleted');
+    this.log('Midea AC [' + this.getName() + '] has been deleted');
   }
 
   async onCapability(capability: string, value: any, opts: any) {
     try {
       this._updatingState = true; 
-      let state: DeviceState = await new GetStateCommand(this._device).execute(this._securityContext);
+      let state: DeviceState = await new GetStateCommand(this._device).execute();
 
       switch (capability) {
         case "onoff": state.powerOn = value; break;
@@ -136,7 +148,7 @@ class MyDevice extends Homey.Device {
         case "airco_boost_capability": state.turboMode = value; break;
         case "airco_fan_mode_capability": {
           switch (value) {
-            case "auto": state.fanSpeed= FAN_SPEED.AUTO
+            case "auto": state.fanSpeed= FAN_SPEED.AUTO; break;
             case "fixed": state.fanSpeed = FAN_SPEED.FIXED; break;
             case "silent": state.fanSpeed = FAN_SPEED.SILENT; break;
             case "low": state.fanSpeed = FAN_SPEED.LOW; break;
@@ -156,7 +168,7 @@ class MyDevice extends Homey.Device {
         } 
       }
 
-      state = await new SetStateCommand(this._device, state).execute(this._securityContext);
+      state = await new SetStateCommand(this._device, state).execute();
       this._updateState(state);
     } finally {
       this._updatingState = false; 

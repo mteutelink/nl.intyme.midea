@@ -1,6 +1,6 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
-  "id": "nl.intyme.homey.midea",
+  "id": "nl.intyme.midea",
   "version": "1.0.0",
   "compatibility": ">=12.2.0",
   "sdk": 3,
@@ -18,9 +18,9 @@
   ],
   "permissions": [],
   "images": {
-    "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
+    "small": "/assets/images/app-small.png",
+    "large": "/assets/images/app-large.png",
+    "xlarge": "/assets/images/app-xlarge.png"
   },
   "author": {
     "name": "Marc Teutelink",
@@ -117,11 +117,27 @@
         }
       ],
       "images": {
-        "small": "/drivers/airco/assets/images/small.png",
-        "large": "/drivers/airco/assets/images/large.png",
-        "xlarge": "/drivers/airco/assets/images/xlarge.png"
+        "small": "/drivers/airco/assets/images/driver-small.png",
+        "large": "/drivers/airco/assets/images/driver-large.png",
+        "xlarge": "/drivers/airco/assets/images/driver-xlarge.png"
       },
-      "id": "airco"
+      "id": "airco",
+      "settings": [
+        {
+          "id": "polling_interval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval"
+          },
+          "value": 15,
+          "min": 15,
+          "max": 600,
+          "step": 15,
+          "units": {
+            "en": "seconds"
+          }
+        }
+      ]
     }
   ],
   "capabilities": {

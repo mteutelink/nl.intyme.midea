@@ -1,5 +1,5 @@
 {
-  "name": "nl.intyme.homey.midea",
+  "name": "nl.intyme.midea",
   "version": "1.0.0",
   "main": "app.ts",
   "scripts": {
@@ -18,7 +18,7 @@
   "dependencies": {
     "crypto-js": "^4.2.0",
     "dateformat": "^4.6.3",
-    "midea-msmarthome-ac-euosk105": "^0.0.6",
+    "midea-msmarthome-ac-euosk105": "^1.1.0",
     "node-mideahvac": "^0.3.3"
   }
 }
