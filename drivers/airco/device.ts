@@ -31,7 +31,9 @@ class MyDevice extends Homey.Device {
     this.registerCapabilityListener("thermostat_boost", async (value, opts) => { return this.onCapability("thermostat_boost", value, opts); });
     this.registerCapabilityListener("thermostat_fan_speed", async (value, opts) => { return this.onCapability("thermostat_fan_speed", value, opts); });
     this.registerCapabilityListener("thermostat_swing_mode", async (value, opts) => { return this.onCapability("thermostat_swing_mode", value, opts); });
-    
+    this.registerCapabilityListener("thermostat_eco", async (value, opts) => { return this.onCapability("thermostat_eco", value, opts); });
+    this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
+
     const settings = this.getSettings();
     this._initializePolling(settings.polling_interval);
   }
@@ -70,11 +72,12 @@ class MyDevice extends Homey.Device {
     this.setCapabilityValue("measure_temperature.outside", state.outdoorTemperature);
     switch (state.fanSpeed) {
       case FAN_SPEED.AUTO: this.setCapabilityValue("thermostat_fan_speed", "auto"); break;
-      case FAN_SPEED.FIXED: this.setCapabilityValue("thermostat_fan_speed", "fixed"); break;
+      case FAN_SPEED.FIXED: this.setCapabilityValue("thermostat_fan_speed", "auto"); break;
       case FAN_SPEED.SILENT: this.setCapabilityValue("thermostat_fan_speed", "silent"); break;
       case FAN_SPEED.LOW: this.setCapabilityValue("thermostat_fan_speed", "low"); break;
       case FAN_SPEED.MEDIUM: this.setCapabilityValue("thermostat_fan_speed", "medium"); break;
       case FAN_SPEED.HIGH: this.setCapabilityValue("thermostat_fan_speed", "high"); break;
+      case FAN_SPEED.FULL: this.setCapabilityValue("thermostat_fan_speed", "full"); break;
     }
     switch (state.swingMode) {
       case SWING_MODE.OFF: this.setCapabilityValue("thermostat_swing_mode", "off"); break;
@@ -82,7 +85,9 @@ class MyDevice extends Homey.Device {
       case SWING_MODE.VERTICAL: this.setCapabilityValue("thermostat_swing_mode", "vertical"); break;
       case SWING_MODE.HORIZONTAL: this.setCapabilityValue("thermostat_swing_mode", "horizontal"); break;
     }
-  } 
+    this.setCapabilityValue("thermostat_eco", state.ecoMode);
+    this.setCapabilityValue("thermostat_freeze_protection", state.freezeProtectionMode);
+  }
 
   /**
    * onAdded is called when the user adds the device, called just after pairing.
@@ -132,8 +137,9 @@ class MyDevice extends Homey.Device {
   }
 
   async onCapability(capability: string, value: any, opts: any) {
+    this.log("Device::onCapability(capability='" + capability + "', value='", value, "'");
     try {
-      this._updatingState = true; 
+      this._updatingState = true;
       let state: DeviceState = await new GetStateCommand(this._device).execute();
 
       switch (capability) {
@@ -144,20 +150,50 @@ class MyDevice extends Homey.Device {
             case "auto": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.AUTO; break;
             case "cool": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.COOL; break;
             case "heat": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.HEAT; break;
-            case "off": state.powerOn = false; break;
+            case "off": state.powerOn = false; break; /* this behaves exactly the same as the onoff button */
+            default:
+              this.log("Value '" + value + "' for capability 'thermostat_mode' does not exist");
+              break;
           }
           break;
         }
-        case "thermostat_boost": state.turboMode = value; break;
+        case "thermostat_boost": state.turboMode = value; break; /* only available in thermostat_mode 'heat' or 'cool' */
+        case "thermostat_eco": {
+          /* only available in thermostat_mode 'cool' */
+          if (value) {
+            state.operationalMode = OPERATIONAL_MODE.COOL;
+            state = await new SetStateCommand(this._device, state).execute();
+          }
+          state.ecoMode = value; 
+          break; 
+        }
+        case "thermostat_freeze_protection": {
+          /* only available in thermostat_mode 'heat' */
+          if (value) {
+            state.operationalMode = OPERATIONAL_MODE.HEAT;
+            state = await new SetStateCommand(this._device, state).execute();
+          }
+          state.freezeProtectionMode = value; 
+          break; 
+        }
         case "thermostat_fan_speed": {
           switch (value) {
-            case "auto": state.fanSpeed= FAN_SPEED.AUTO; break;
-            case "fixed": state.fanSpeed = FAN_SPEED.FIXED; break;
+            case "auto": {
+              if (state.operationalMode == OPERATIONAL_MODE.AUTO) {
+                state.fanSpeed = FAN_SPEED.FIXED; /* this is the default setting when thermostat_mode in 'auto' */
+              } else {
+                state.fanSpeed = FAN_SPEED.AUTO; /* only available in thermostat_mode 'heat' or 'cool' */
+              }
+              break;
+            }
             case "silent": state.fanSpeed = FAN_SPEED.SILENT; break;
             case "low": state.fanSpeed = FAN_SPEED.LOW; break;
             case "medium": state.fanSpeed = FAN_SPEED.MEDIUM; break;
             case "high": state.fanSpeed = FAN_SPEED.HIGH; break;
-            //case "full": state.fanSpeed = FAN_SPEED.FULL; break;
+            case "full": state.fanSpeed = FAN_SPEED.FULL; break;
+            default:
+              this.log("Value '" + value + "' for capability 'thermostat_fan_speed' does not exist");
+              break;
           }
           break;
         }
@@ -167,14 +203,21 @@ class MyDevice extends Homey.Device {
             case "both": state.swingMode = SWING_MODE.BOTH; break;
             case "vertical": state.swingMode = SWING_MODE.VERTICAL; break;
             case "horizontal": state.swingMode = SWING_MODE.HORIZONTAL; break;
+            default:
+              this.log("Value '" + value + "' for capability 'thermostat_swing_mode' does not exist");
+              break;
           }
-        } 
+          break;
+        }
+        default:
+          this.log("Capability '" + capability + "' does not exist");
+          break;
       }
 
       state = await new SetStateCommand(this._device, state).execute();
       this._updateState(state);
     } finally {
-      this._updatingState = false; 
+      this._updatingState = false;
     }
   }
 }

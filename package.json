@@ -18,7 +18,7 @@
   "dependencies": {
     "crypto-js": "^4.2.0",
     "dateformat": "^4.6.3",
-    "midea-msmarthome-ac-euosk105": "^1.1.1",
+    "midea-msmarthome-ac-euosk105": "^1.1.2",
     "node-mideahvac": "^0.3.3"
   }
 }

@@ -11,7 +11,9 @@
     "measure_temperature.outside",
     "thermostat_boost",
     "thermostat_fan_speed",
-    "thermostat_swing_mode"
+    "thermostat_swing_mode",
+    "thermostat_eco",
+    "thermostat_freeze_protection"
   ],
 	"capabilitiesOptions": {
 		"target_temperature": {

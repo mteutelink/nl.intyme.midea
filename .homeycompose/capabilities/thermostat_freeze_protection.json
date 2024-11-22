@@ -1,0 +1,9 @@
+{
+	"type": "boolean",
+	"title": { "en": "Freeze Protection" },
+	"getable": true,
+	"setable": true,
+	"uiComponent": "toggle",
+	"uiQuickAction": true,
+	"icon": "/assets/images/thermostat_freeze_protection.svg"
+  }

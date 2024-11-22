@@ -1,0 +1,9 @@
+{
+	"type": "boolean",
+	"title": { "en": "ECO Mode" },
+	"getable": true,
+	"setable": true,
+	"uiComponent": "toggle",
+	"uiQuickAction": true,
+	"icon": "/assets/images/thermostat_eco.svg"
+  }

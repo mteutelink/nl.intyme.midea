@@ -38,12 +38,6 @@
 			}
 		},
 		{
-			"id": "fixed",
-			"title": {
-				"en": "Fixed"
-			}
-		},
-		{
 			"id": "auto",
 			"title": {
 				"en": "Auto"
