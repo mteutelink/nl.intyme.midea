@@ -4,5 +4,8 @@
   },
   "1.0.1": {
     "en": "used the standard thermostat_mode from Homey"
+  },
+  "1.0.2": {
+    "en": "fixed bugs, added eco mode and freeze protection mode"
   }
 }
