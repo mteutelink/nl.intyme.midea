@@ -10,5 +10,8 @@
   },
   "1.0.3": {
     "en": "added debug_level device setting; changing to use of cross-fetch instead of the fetch which is part default node cleaning up imports"
+  },
+  "1.0.4": {
+    "en": "using midea-msmarthome-ac-euosk105@1.1.4 with more logging and errorhandling"
   }
 }
