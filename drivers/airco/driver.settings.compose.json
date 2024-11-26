@@ -7,6 +7,43 @@
 	  "min": 15,
 	  "max": 600,
 	  "units": { "en": "seconds" }
-	}
+	},
+	{
+		"id": "debug_level",
+		"type": "dropdown",
+		"label": { "en": "Debug level" },
+		"value": "info",
+		"values": [
+			{
+			  "id": "error",
+			  "label": { "en": "Error" }
+			},
+			{
+			  "id": "warn",
+			  "label": { "en": "Warning" }
+			},
+			{
+			  "id": "info",
+			  "label": { "en": "Information" }
+			},
+			{
+			  "id": "http",
+			  "label": { "en": "HTTP" }
+			},
+			{
+			  "id": "verbose",
+			  "label": { "en": "Verbose" }
+			},
+			{
+			  "id": "debug",
+			  "label": { "en": "Debug" }
+			},
+			{
+			  "id": "silly",
+			  "label": { "en": "Silly" }
+			}
+		  ]
+
+	  }
   ]
   
