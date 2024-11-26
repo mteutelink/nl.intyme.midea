@@ -1,5 +1,5 @@
 import Homey from 'homey';
-import { Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, SecurityContext as MSecurityContext, SetStateCommand } from 'midea-msmarthome-ac-euosk105';
+import { Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, SecurityContext as MSecurityContext, SetStateCommand, _LOGGER } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, OPERATIONAL_MODE, SWING_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
 class MyDevice extends Homey.Device {
@@ -116,6 +116,9 @@ class MyDevice extends Homey.Device {
 
     if (changedKeys.includes("polling_interval")) {
       this._initializePolling(+newSettings.polling_interval);
+    }
+    if (changedKeys.includes("debug_level")) {
+      _LOGGER.level = newSettings.debug_level.toString();
     }
   }
 

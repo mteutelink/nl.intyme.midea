@@ -1,6 +1,5 @@
 import Homey from 'homey';
-import { Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, SecurityContext as MSecurityContext, _LOGGER } from 'midea-msmarthome-ac-euosk105';
-import { SecureContext } from 'tls';
+import { Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, SecurityContext as MSecurityContext } from 'midea-msmarthome-ac-euosk105';
 
 class MideaDriver extends Homey.Driver {
   /**
