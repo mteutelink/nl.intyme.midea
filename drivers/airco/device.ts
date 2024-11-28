@@ -25,6 +25,7 @@ class MyDevice extends Homey.Device {
 
     this._securityContext = await this._device.authenticate(new MSecurityContext(this.getStore().username, this.getStore().password));
 
+    // REGISTER CAPABILITY LISTENERS
     this.registerCapabilityListener("onoff", async (value, opts) => { return this.onCapability("onoff", value, opts); });
     this.registerCapabilityListener("target_temperature", async (value, opts) => { return this.onCapability("target_temperature", value, opts); });
     this.registerCapabilityListener("thermostat_mode", async (value, opts) => { return this.onCapability("thermostat_mode", value, opts); });
@@ -34,6 +35,7 @@ class MyDevice extends Homey.Device {
     this.registerCapabilityListener("thermostat_eco", async (value, opts) => { return this.onCapability("thermostat_eco", value, opts); });
     this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
 
+    // INITIALIZE POLLING
     const settings = this.getSettings();
     this._initializePolling(settings.polling_interval);
   }
@@ -53,7 +55,7 @@ class MyDevice extends Homey.Device {
   }
 
   private _updateState(state: DeviceState) {
-    this.log("state = " + JSON.stringify(state));
+    this.log("state = " + JSON.stringify(state) + ")");
     this.setCapabilityValue("onoff", state.powerOn);
     if (state.powerOn) {
       switch (state.operationalMode) {
@@ -140,7 +142,7 @@ class MyDevice extends Homey.Device {
   }
 
   async onCapability(capability: string, value: any, opts: any) {
-    this.log("Device::onCapability(capability='" + capability + "', value='", value, "'");
+    this.log("Device::onCapability(capability='" + capability + "', value='", value, "')");
     try {
       this._updatingState = true;
       let state: DeviceState = await new GetStateCommand(this._device).execute();
@@ -160,11 +162,23 @@ class MyDevice extends Homey.Device {
           }
           break;
         }
-        case "thermostat_boost": state.turboMode = value; break; /* only available in thermostat_mode 'heat' or 'cool' */
+        case "thermostat_boost":  {
+          if (value) {
+            /* boost mode disables ECO and freeze protection */
+            this.setCapabilityValue("thermostat_eco", (state.ecoMode = false));
+            this.setCapabilityValue("thermostat_freeze_protection", (state.freezeProtectionMode = false));
+          }
+          state.turboMode = value; break; /* only available in thermostat_mode 'heat' or 'cool' */
+        }
         case "thermostat_eco": {
           /* only available in thermostat_mode 'cool' */
           if (value) {
             state.operationalMode = OPERATIONAL_MODE.COOL;
+
+            /* ECO mode disables boost and freeze protection */
+            this.setCapabilityValue("thermostat_boost", (state.turboMode = false));
+            this.setCapabilityValue("thermostat_freeze_protection", (state.freezeProtectionMode = false));
+
             state = await new SetStateCommand(this._device, state).execute();
           }
           state.ecoMode = value; 
@@ -174,6 +188,10 @@ class MyDevice extends Homey.Device {
           /* only available in thermostat_mode 'heat' */
           if (value) {
             state.operationalMode = OPERATIONAL_MODE.HEAT;
+
+            /* freeze protection mode disables boost and ECO */
+            this.setCapabilityValue("thermostat_eco", (state.ecoMode = false));
+            this.setCapabilityValue("thermostat_boost", (state.turboMode = false));
             state = await new SetStateCommand(this._device, state).execute();
           }
           state.freezeProtectionMode = value; 

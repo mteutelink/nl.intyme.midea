@@ -3,7 +3,6 @@
 	"title": { "en": "ECO Mode" },
 	"getable": true,
 	"setable": true,
-	"uiComponent": "toggle",
-	"uiQuickAction": true,
+	"uiComponent": "button",
 	"icon": "/assets/images/thermostat_eco.svg"
   }
