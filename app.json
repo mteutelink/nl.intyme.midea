@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "nl.intyme.midea",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "bugs": {
     "url": "https://github.com/mteutelink/nl.intyme.midea/issues"
   },
@@ -39,6 +39,503 @@
     "translators": []
   },
   "brandColor": "#498ff2",
+  "flow": {
+    "triggers": [
+      {
+        "id": "thermostat_boost_true",
+        "title": {
+          "en": "Boost is enabled"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_boost"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_boost_false",
+        "title": {
+          "en": "Boost is disabled"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_boost"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_eco_true",
+        "title": {
+          "en": "ECO mode is enabled"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_eco"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_eco_false",
+        "title": {
+          "en": "ECO mode is disabled"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_eco"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_true",
+        "title": {
+          "en": "Freeze protection mode is enabled"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_false",
+        "title": {
+          "en": "Freeze protection mode is disabled"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_fan_speed_changed",
+        "title": {
+          "en": "Fan speed has changed to"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
+          },
+          {
+            "name": "fan_speed",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "silent",
+                "title": {
+                  "en": "Silent (20%)"
+                }
+              },
+              {
+                "id": "low",
+                "title": {
+                  "en": "Low (40%)"
+                }
+              },
+              {
+                "id": "medium",
+                "title": {
+                  "en": "Medium (60%)"
+                }
+              },
+              {
+                "id": "high",
+                "title": {
+                  "en": "High (80%)"
+                }
+              },
+              {
+                "id": "full",
+                "title": {
+                  "en": "Full (100%)"
+                }
+              },
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "thermostat_swing_mode_changed",
+        "title": {
+          "en": "Swing mode has changed to"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
+          },
+          {
+            "name": "swing_mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "vertical",
+                "title": {
+                  "en": "Vertical"
+                }
+              },
+              {
+                "id": "horizontal",
+                "title": {
+                  "en": "Horizontal"
+                }
+              },
+              {
+                "id": "both",
+                "title": {
+                  "en": "Both"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "thermostat_boost_is_true",
+        "title": {
+          "en": "Boost is !{{enabled|disabled}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_boost"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_eco_is_true",
+        "title": {
+          "en": "ECO mode is !{{enabled|disabled}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_eco"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_is_true",
+        "title": {
+          "en": "Freeze protection mode is !{{enabled|disabled}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_fan_speed_is",
+        "title": {
+          "en": "Fan speed !{{is|is not}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
+          },
+          {
+            "name": "fan_speed",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "silent",
+                "title": {
+                  "en": "Silent (20%)"
+                }
+              },
+              {
+                "id": "low",
+                "title": {
+                  "en": "Low (40%)"
+                }
+              },
+              {
+                "id": "medium",
+                "title": {
+                  "en": "Medium (60%)"
+                }
+              },
+              {
+                "id": "high",
+                "title": {
+                  "en": "High (80%)"
+                }
+              },
+              {
+                "id": "full",
+                "title": {
+                  "en": "Full (100%)"
+                }
+              },
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "thermostat_swing_mode_is",
+        "title": {
+          "en": "Swing mode !{{is|is not}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
+          },
+          {
+            "name": "swing_mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "vertical",
+                "title": {
+                  "en": "Vertical"
+                }
+              },
+              {
+                "id": "horizontal",
+                "title": {
+                  "en": "Horizontal"
+                }
+              },
+              {
+                "id": "both",
+                "title": {
+                  "en": "Both"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "thermostat_boost_set_true",
+        "title": {
+          "en": "Enable boost"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_boost"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_boost_set_false",
+        "title": {
+          "en": "Disable boost"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_boost"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_eco_set_true",
+        "title": {
+          "en": "Enable ECO mode"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_eco"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_eco_set_false",
+        "title": {
+          "en": "Disable ECO mode"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_eco"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_set_true",
+        "title": {
+          "en": "Enable freeze protection mode"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_set_false",
+        "title": {
+          "en": "Disable freeze protection mode"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_fan_speed_set",
+        "title": {
+          "en": "Set the fan speed to [[value]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
+          },
+          {
+            "name": "fan_speed",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "silent",
+                "title": {
+                  "en": "Silent (20%)"
+                }
+              },
+              {
+                "id": "low",
+                "title": {
+                  "en": "Low (40%)"
+                }
+              },
+              {
+                "id": "medium",
+                "title": {
+                  "en": "Medium (60%)"
+                }
+              },
+              {
+                "id": "high",
+                "title": {
+                  "en": "High (80%)"
+                }
+              },
+              {
+                "id": "full",
+                "title": {
+                  "en": "Full (100%)"
+                }
+              },
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "thermostat_swing_mode_set",
+        "title": {
+          "en": "Set the swing mode to [[value]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
+          },
+          {
+            "name": "swing_mode",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "vertical",
+                "title": {
+                  "en": "Vertical"
+                }
+              },
+              {
+                "id": "horizontal",
+                "title": {
+                  "en": "Horizontal"
+                }
+              },
+              {
+                "id": "both",
+                "title": {
+                  "en": "Both"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "name": {
@@ -205,8 +702,7 @@
       },
       "getable": true,
       "setable": true,
-      "uiComponent": "toggle",
-      "uiQuickAction": true,
+      "uiComponent": "button",
       "icon": "/assets/images/thermostat_boost.svg"
     },
     "thermostat_eco": {
@@ -216,8 +712,7 @@
       },
       "getable": true,
       "setable": true,
-      "uiComponent": "toggle",
-      "uiQuickAction": true,
+      "uiComponent": "button",
       "icon": "/assets/images/thermostat_eco.svg"
     },
     "thermostat_fan_speed": {
@@ -277,8 +772,7 @@
       },
       "getable": true,
       "setable": true,
-      "uiComponent": "toggle",
-      "uiQuickAction": true,
+      "uiComponent": "button",
       "icon": "/assets/images/thermostat_freeze_protection.svg"
     },
     "thermostat_swing_mode": {

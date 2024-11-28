@@ -13,5 +13,8 @@
   },
   "1.0.4": {
     "en": "using midea-msmarthome-ac-euosk105@1.1.4 with more logging and errorhandling"
+  },
+  "1.0.5": {
+    "en": "triggercards, conditioncards and actioncards for all capabilities"
   }
 }
