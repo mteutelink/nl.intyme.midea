@@ -1,6 +1,6 @@
 {
   "name": "nl.intyme.midea",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "app.ts",
   "scripts": {
     "build": "tsc",

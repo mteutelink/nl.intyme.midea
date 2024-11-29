@@ -1,0 +1,9 @@
+{
+	"login_credentials": {
+		"title": "Meld u aan met uw inloggegevens",
+		"usernameLabel": "E-mailadres",
+		"usernamePlaceholder": "john@doe.nl",
+		"passwordLabel": "Wachtwoord",
+		"passwordPlaceholder": "Wachtwoord"
+	}
+}

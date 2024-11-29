@@ -1,6 +1,7 @@
-import Homey from 'homey';
+import Homey, { Device } from 'homey';
 import { Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, SecurityContext as MSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, SWING_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
+import { MideaDevice } from './device'
 
 class MideaDriver extends Homey.Driver {
   /**
@@ -138,6 +139,19 @@ class MideaDriver extends Homey.Driver {
       } catch (err) {
         return null;
       }
+    });
+  }
+
+  async onRepair(session: any, device: Device) {
+    session.setHandler("relogin", async (data: any) => {
+      try {
+        let securityContext: MSecurityContext = await (<MideaDevice>device)._device.authenticate(new MSecurityContext(data.username, data.password));
+        device.setStoreValue("username", securityContext.account);
+        device.setStoreValue("password", securityContext.password);
+        return device;
+      } catch (err) {
+        return null;
+      }    
     });
   }
 }

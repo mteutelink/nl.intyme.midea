@@ -2,11 +2,9 @@ import Homey from 'homey';
 import { Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, SecurityContext as MSecurityContext, SetStateCommand, _LOGGER } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, OPERATIONAL_MODE, SWING_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
-class MyDevice extends Homey.Device {
-  private _device: MDevice;
-  private _securityContext: MSecurityContext = null;
+export class MideaDevice extends Homey.Device {
+  public _device: MDevice;
   private _intervalId: any;
-
   private _updatingState: boolean = false;
 
   /**
@@ -15,29 +13,34 @@ class MyDevice extends Homey.Device {
   async onInit() {
     this.log('Midea AC [' + this.getName() + '] initialized');
 
-    const deviceContext: MDeviceContext = new MDeviceContext();
-    deviceContext.id = this.getData().id;
-    deviceContext.macAddress = this.getData().macAddress;
-    deviceContext.udpId = this.getData().udpId;
-    deviceContext.host = this.getStore().host;
-    deviceContext.port = this.getStore().port;
-    this._device = new MDevice(deviceContext);
+    try {
+      const deviceContext: MDeviceContext = new MDeviceContext();
+      deviceContext.id = this.getData().id;
+      deviceContext.macAddress = this.getData().macAddress;
+      deviceContext.udpId = this.getData().udpId;
+      deviceContext.host = this.getStore().host;
+      deviceContext.port = this.getStore().port;
+      this._device = new MDevice(deviceContext);
 
-    this._securityContext = await this._device.authenticate(new MSecurityContext(this.getStore().username, this.getStore().password));
+      await this._device.authenticate(new MSecurityContext(this.getStore().username, this.getStore().password));
 
-    // REGISTER CAPABILITY LISTENERS
-    this.registerCapabilityListener("onoff", async (value, opts) => { return this.onCapability("onoff", value, opts); });
-    this.registerCapabilityListener("target_temperature", async (value, opts) => { return this.onCapability("target_temperature", value, opts); });
-    this.registerCapabilityListener("thermostat_mode", async (value, opts) => { return this.onCapability("thermostat_mode", value, opts); });
-    this.registerCapabilityListener("thermostat_boost", async (value, opts) => { return this.onCapability("thermostat_boost", value, opts); });
-    this.registerCapabilityListener("thermostat_fan_speed", async (value, opts) => { return this.onCapability("thermostat_fan_speed", value, opts); });
-    this.registerCapabilityListener("thermostat_swing_mode", async (value, opts) => { return this.onCapability("thermostat_swing_mode", value, opts); });
-    this.registerCapabilityListener("thermostat_eco", async (value, opts) => { return this.onCapability("thermostat_eco", value, opts); });
-    this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
+      // REGISTER CAPABILITY LISTENERS
+      this.registerCapabilityListener("onoff", async (value, opts) => { return this.onCapability("onoff", value, opts); });
+      this.registerCapabilityListener("target_temperature", async (value, opts) => { return this.onCapability("target_temperature", value, opts); });
+      this.registerCapabilityListener("thermostat_mode", async (value, opts) => { return this.onCapability("thermostat_mode", value, opts); });
+      this.registerCapabilityListener("thermostat_boost", async (value, opts) => { return this.onCapability("thermostat_boost", value, opts); });
+      this.registerCapabilityListener("thermostat_fan_speed", async (value, opts) => { return this.onCapability("thermostat_fan_speed", value, opts); });
+      this.registerCapabilityListener("thermostat_swing_mode", async (value, opts) => { return this.onCapability("thermostat_swing_mode", value, opts); });
+      this.registerCapabilityListener("thermostat_eco", async (value, opts) => { return this.onCapability("thermostat_eco", value, opts); });
+      this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
 
-    // INITIALIZE POLLING
-    const settings = this.getSettings();
-    this._initializePolling(settings.polling_interval);
+      // INITIALIZE POLLING
+      const settings = this.getSettings();
+      this._initializePolling(settings.polling_interval);
+    } catch (error) {
+      this.error(error);
+      throw new Error("Cannot initialize device");
+    }
   }
 
   private _initializePolling(pollingInterval: number) {
@@ -243,4 +246,4 @@ class MyDevice extends Homey.Device {
   }
 }
 
-module.exports = MyDevice;
+module.exports = MideaDevice;
