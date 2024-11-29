@@ -1,34 +1,40 @@
 {
 	"type": "enum",
 	"title": {
-		"en": "Swing mode"
+		"en": "Swing mode",
+		"nl": "Schommel modus"
 	},
 	"desc": {
-		"en": "Mode of the swing"
+		"en": "Mode of the swing",
+		"nl": "Schommel modus"
 	},
 	"values": [
 		{
 			"id": "off",
 			"title": {
-				"en": "Off"
+				"en": "Off",
+				"nl": "Uit"
 			}
 		},
 		{
 			"id": "vertical",
 			"title": {
-				"en": "Vertical"
+				"en": "Vertical",
+				"nl": "Verticaal"
 			}
 		},
 		{
 			"id": "horizontal",
 			"title": {
-				"en": "Horizontal"
+				"en": "Horizontal",
+				"nl": "Horizontaal"
 			}
 		},
 		{
 			"id": "both",
 			"title": {
-				"en": "Both"
+				"en": "Both",
+				"nl": "Beide"
 			}
 		}
 	],

@@ -1,46 +1,54 @@
 {
 	"type": "enum",
 	"title": {
-		"en": "Fan speed"
+		"en": "Fan speed",
+		"nl": "Ventilatorsnelheid"
 	},
 	"desc": {
-		"en": "Speed of the fan"
+		"en": "Speed of the fan",
+		"nl": "De snelheid van de ventilator"
 	},
 	"values": [
 		{
 			"id": "silent",
 			"title": {
-				"en": "Silent (20%)"
+				"en": "Silent (20%)",
+				"nl": "Stil (20%)"
 			}
 		},
 		{
 			"id": "low",
 			"title": {
-				"en": "Low (40%)"
+				"en": "Low (40%)",
+				"nl": "Langzaam (40%)"
 			}
 		},
 		{
 			"id": "medium",
 			"title": {
-				"en": "Medium (60%)"
+				"en": "Medium (60%)",
+				"nl": "Gemiddeld (60%)"
 			}
 		},
 		{
 			"id": "high",
 			"title": {
-				"en": "High (80%)"
+				"en": "High (80%)",
+				"nl": "Hoog (80%)"
 			}
 		},
 		{
 			"id": "full",
 			"title": {
-				"en": "Full (100%)"
+				"en": "Turbo (100%)",
+				"nl": "Turbo (100%)"
 			}
 		},
 		{
 			"id": "auto",
 			"title": {
-				"en": "Auto"
+				"en": "Auto",
+				"nl": "Automatisch"
 			}
 		}
 	],

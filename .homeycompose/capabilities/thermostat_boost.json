@@ -1,8 +1,11 @@
 {
 	"type": "boolean",
-	"title": { "en": "Boost" },
+	"title": {
+		"en": "Boost Mode",
+		"nl": "Turbo modus"
+	},
 	"getable": true,
 	"setable": true,
 	"uiComponent": "button",
 	"icon": "/assets/images/thermostat_boost.svg"
-  }
+}

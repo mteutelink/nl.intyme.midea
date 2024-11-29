@@ -1,6 +1,7 @@
 {
   "name": {
-    "en": "Airconditioning"
+    "en": "Airconditioning",
+    "nl": "Airconditioning"
   },
   "class": "thermostat",
   "capabilities": [
@@ -15,19 +16,25 @@
     "thermostat_eco",
     "thermostat_freeze_protection"
   ],
-	"capabilitiesOptions": {
-		"target_temperature": {
-			"min": 16,
-			"max": 30,
-			"step": 1
-		},
-		"measure_temperature": {
-      "title": { "en": "Inside temperature", "nl": "Binnentemperatuur"}
-		},
-		"measure_temperature.outside": {
-      "title": { "en": "Outside temperature", "nl": "Buitentemperatuur"}
-		}
-	},
+  "capabilitiesOptions": {
+    "target_temperature": {
+      "min": 16,
+      "max": 30,
+      "step": 1
+    },
+    "measure_temperature": {
+      "title": {
+        "en": "Inside temperature",
+        "nl": "Binnentemperatuur"
+      }
+    },
+    "measure_temperature.outside": {
+      "title": {
+        "en": "Outside temperature",
+        "nl": "Buitentemperatuur"
+      }
+    }
+  },
   "platforms": [
     "local"
   ],
@@ -35,11 +42,11 @@
     "lan"
   ],
   "pair": [
-     {
+    {
       "id": "list_devices",
       "template": "list_devices",
-      "options": { 
-        "singular": true 
+      "options": {
+        "singular": true
       },
       "navigation": {
         "next": "login_credentials"
@@ -50,12 +57,25 @@
       "options": {
         "logo": "{{driverAssetsPath}}/icon.svg",
         "title": {
-          "en": "Log in with your credentials"
+          "en": "Log in with your credentials",
+          "nl": "Meld u aan met uw inloggegevens"
         },
-        "usernameLabel": { "en": "E-mail address" },
-        "usernamePlaceholder": { "en": "john@doe.com" },
-        "passwordLabel": { "en": "Password" },
-        "passwordPlaceholder": { "en": "Password" }
+        "usernameLabel": {
+          "en": "E-mail address",
+          "nl": "E-mailadres"
+        },
+        "usernamePlaceholder": {
+          "en": "john@doe.com",
+          "nl": "gebruiker@domein.com"
+        },
+        "passwordLabel": {
+          "en": "Password",
+          "nl": "Wachtwoord"
+        },
+        "passwordPlaceholder": {
+          "en": "Password",
+          "nl": "Wachtwoord"
+        }
       },
       "navigation": {
         "next": "add_devices"

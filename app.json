@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "nl.intyme.midea",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "bugs": {
     "url": "https://github.com/mteutelink/nl.intyme.midea/issues"
   },
@@ -15,7 +15,7 @@
     "en": "Midea"
   },
   "description": {
-    "en": "Adds support for Midea appliances."
+    "en": "Midea HVAC Oplossingen - Slimme klimaat controle"
   },
   "category": [
     "climate"
@@ -42,94 +42,68 @@
   "flow": {
     "triggers": [
       {
-        "id": "thermostat_boost_true",
-        "title": {
-          "en": "Boost is enabled"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_boost"
-          }
-        ]
-      },
-      {
         "id": "thermostat_boost_false",
         "title": {
-          "en": "Boost is disabled"
+          "en": "Boost mode is disabled",
+          "nl": "Turbo modus is ingeschakeld"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
+            "type": "device",
             "filter": "driver_id=airco&capabilities=thermostat_boost"
           }
         ]
       },
       {
-        "id": "thermostat_eco_true",
+        "id": "thermostat_boost_true",
         "title": {
-          "en": "ECO mode is enabled"
+          "en": "Boost mode is enabled",
+          "nl": "Turbo modus is uitgeschakeld"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_eco"
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_boost"
           }
         ]
       },
       {
         "id": "thermostat_eco_false",
         "title": {
-          "en": "ECO mode is disabled"
+          "en": "ECO mode is disabled",
+          "nl": "ECO modus is uitgeschakeld"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
+            "type": "device",
             "filter": "driver_id=airco&capabilities=thermostat_eco"
           }
         ]
       },
       {
-        "id": "thermostat_freeze_protection_true",
+        "id": "thermostat_eco_true",
         "title": {
-          "en": "Freeze protection mode is enabled"
+          "en": "ECO mode is enabled",
+          "nl": "ECO modus is ingeschakeld"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
-          }
-        ]
-      },
-      {
-        "id": "thermostat_freeze_protection_false",
-        "title": {
-          "en": "Freeze protection mode is disabled"
-        },
-        "args": [
-          {
             "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+            "filter": "driver_id=airco&capabilities=thermostat_eco"
           }
         ]
       },
       {
         "id": "thermostat_fan_speed_changed",
         "title": {
-          "en": "Fan speed has changed to"
+          "en": "Fan speed has changed to",
+          "nl": "Ventilatorsnelheid is aangepast naar"
         },
         "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
-          },
           {
             "name": "fan_speed",
             "type": "dropdown",
@@ -137,54 +111,89 @@
               {
                 "id": "silent",
                 "title": {
-                  "en": "Silent (20%)"
+                  "en": "Silent (20%)",
+                  "nl": "Stil (20%)"
                 }
               },
               {
                 "id": "low",
                 "title": {
-                  "en": "Low (40%)"
+                  "en": "Low (40%)",
+                  "nl": "Langzaam (40%)"
                 }
               },
               {
                 "id": "medium",
                 "title": {
-                  "en": "Medium (60%)"
+                  "en": "Medium (60%)",
+                  "nl": "Gemiddeld (60%)"
                 }
               },
               {
                 "id": "high",
                 "title": {
-                  "en": "High (80%)"
+                  "en": "High (80%)",
+                  "nl": "Hoog (80%)"
                 }
               },
               {
                 "id": "full",
                 "title": {
-                  "en": "Full (100%)"
+                  "en": "Turbo (100%)",
+                  "nl": "Turbo (100%)"
                 }
               },
               {
                 "id": "auto",
                 "title": {
-                  "en": "Auto"
+                  "en": "Auto",
+                  "nl": "Automatisch"
                 }
               }
             ]
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_false",
+        "title": {
+          "en": "Freeze protection mode is disabled",
+          "nl": "Bescherming tegen bevriezen is uitgeschakeld"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_true",
+        "title": {
+          "en": "Freeze protection mode is enabled",
+          "nl": "Bescherming tegen bevriezen is ingeschakeld"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
           }
         ]
       },
       {
         "id": "thermostat_swing_mode_changed",
         "title": {
-          "en": "Swing mode has changed to"
+          "en": "Swing mode has changed to",
+          "nl": "Schommel modus is aangepast naar"
         },
         "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
-          },
           {
             "name": "swing_mode",
             "type": "dropdown",
@@ -192,28 +201,37 @@
               {
                 "id": "off",
                 "title": {
-                  "en": "Off"
+                  "en": "Off",
+                  "nl": "Uit"
                 }
               },
               {
                 "id": "vertical",
                 "title": {
-                  "en": "Vertical"
+                  "en": "Vertical",
+                  "nl": "Verticaal"
                 }
               },
               {
                 "id": "horizontal",
                 "title": {
-                  "en": "Horizontal"
+                  "en": "Horizontal",
+                  "nl": "Horizontaal"
                 }
               },
               {
                 "id": "both",
                 "title": {
-                  "en": "Both"
+                  "en": "Both",
+                  "nl": "Beide"
                 }
               }
             ]
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
           }
         ]
       }
@@ -222,12 +240,13 @@
       {
         "id": "thermostat_boost_is_true",
         "title": {
-          "en": "Boost is !{{enabled|disabled}}"
+          "en": "Boost mode is !{{enabled|disabled}}",
+          "nl": "Turbo modus is !{{ingeschakeld|uitgeschakeld}}"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
+            "type": "device",
             "filter": "driver_id=airco&capabilities=thermostat_boost"
           }
         ]
@@ -235,40 +254,24 @@
       {
         "id": "thermostat_eco_is_true",
         "title": {
-          "en": "ECO mode is !{{enabled|disabled}}"
+          "en": "ECO mode is !{{enabled|disabled}}",
+          "nl": "ECO modus is !{{ingeschakeld|uitgeschakeld}}"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
+            "type": "device",
             "filter": "driver_id=airco&capabilities=thermostat_eco"
-          }
-        ]
-      },
-      {
-        "id": "thermostat_freeze_protection_is_true",
-        "title": {
-          "en": "Freeze protection mode is !{{enabled|disabled}}"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
           }
         ]
       },
       {
         "id": "thermostat_fan_speed_is",
         "title": {
-          "en": "Fan speed !{{is|is not}}"
+          "en": "Fan speed !{{is|is not}}",
+          "nl": "Ventilatorsnelheid !{{is|is niet}}"
         },
         "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
-          },
           {
             "name": "fan_speed",
             "type": "dropdown",
@@ -276,54 +279,75 @@
               {
                 "id": "silent",
                 "title": {
-                  "en": "Silent (20%)"
+                  "en": "Silent (20%)",
+                  "nl": "Stil (20%)"
                 }
               },
               {
                 "id": "low",
                 "title": {
-                  "en": "Low (40%)"
+                  "en": "Low (40%)",
+                  "nl": "Langzaam (40%)"
                 }
               },
               {
                 "id": "medium",
                 "title": {
-                  "en": "Medium (60%)"
+                  "en": "Medium (60%)",
+                  "nl": "Gemiddeld (60%)"
                 }
               },
               {
                 "id": "high",
                 "title": {
-                  "en": "High (80%)"
+                  "en": "High (80%)",
+                  "nl": "Hoog (80%)"
                 }
               },
               {
                 "id": "full",
                 "title": {
-                  "en": "Full (100%)"
+                  "en": "Turbo (100%)",
+                  "nl": "Turbo (100%)"
                 }
               },
               {
                 "id": "auto",
                 "title": {
-                  "en": "Auto"
+                  "en": "Auto",
+                  "nl": "Automatisch"
                 }
               }
             ]
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_is_true",
+        "title": {
+          "en": "Freeze protection mode is !{{enabled|disabled}}",
+          "nl": "Bescherming tegen bevriezen is !{{ingeschakeld|uitgeschakeld}}"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
           }
         ]
       },
       {
         "id": "thermostat_swing_mode_is",
         "title": {
-          "en": "Swing mode !{{is|is not}}"
+          "en": "Swing mode !{{is|is not}}",
+          "nl": "Schommel modus !{{is|is niet}}"
         },
         "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
-          },
           {
             "name": "swing_mode",
             "type": "dropdown",
@@ -331,122 +355,105 @@
               {
                 "id": "off",
                 "title": {
-                  "en": "Off"
+                  "en": "Off",
+                  "nl": "Uit"
                 }
               },
               {
                 "id": "vertical",
                 "title": {
-                  "en": "Vertical"
+                  "en": "Vertical",
+                  "nl": "Verticaal"
                 }
               },
               {
                 "id": "horizontal",
                 "title": {
-                  "en": "Horizontal"
+                  "en": "Horizontal",
+                  "nl": "Horizontaal"
                 }
               },
               {
                 "id": "both",
                 "title": {
-                  "en": "Both"
+                  "en": "Both",
+                  "nl": "Beide"
                 }
               }
             ]
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
           }
         ]
       }
     ],
     "actions": [
       {
-        "id": "thermostat_boost_set_true",
-        "title": {
-          "en": "Enable boost"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_boost"
-          }
-        ]
-      },
-      {
         "id": "thermostat_boost_set_false",
         "title": {
-          "en": "Disable boost"
+          "en": "Disable boost mode",
+          "nl": "Turbo modus uitschakelen"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
+            "type": "device",
             "filter": "driver_id=airco&capabilities=thermostat_boost"
           }
         ]
       },
       {
-        "id": "thermostat_eco_set_true",
+        "id": "thermostat_boost_set_true",
         "title": {
-          "en": "Enable ECO mode"
+          "en": "Enable boost mode",
+          "nl": "Turbo modus inschakelen"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_eco"
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_boost"
           }
         ]
       },
       {
         "id": "thermostat_eco_set_false",
         "title": {
-          "en": "Disable ECO mode"
+          "en": "Disable ECO mode",
+          "nl": "ECO modus uitschakelen"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
+            "type": "device",
             "filter": "driver_id=airco&capabilities=thermostat_eco"
           }
         ]
       },
       {
-        "id": "thermostat_freeze_protection_set_true",
+        "id": "thermostat_eco_set_true",
         "title": {
-          "en": "Enable freeze protection mode"
+          "en": "Enable ECO mode",
+          "nl": "Turbo modus inschakelen"
         },
         "args": [
           {
-            "type": "device",
             "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
-          }
-        ]
-      },
-      {
-        "id": "thermostat_freeze_protection_set_false",
-        "title": {
-          "en": "Disable freeze protection mode"
-        },
-        "args": [
-          {
             "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+            "filter": "driver_id=airco&capabilities=thermostat_eco"
           }
         ]
       },
       {
         "id": "thermostat_fan_speed_set",
         "title": {
-          "en": "Set the fan speed to [[value]]"
+          "en": "Set the fan speed to",
+          "nl": "Ventilatorsnelheid aanpassen naar"
         },
         "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
-          },
           {
             "name": "fan_speed",
             "type": "dropdown",
@@ -454,54 +461,89 @@
               {
                 "id": "silent",
                 "title": {
-                  "en": "Silent (20%)"
+                  "en": "Silent (20%)",
+                  "nl": "Stil (20%)"
                 }
               },
               {
                 "id": "low",
                 "title": {
-                  "en": "Low (40%)"
+                  "en": "Low (40%)",
+                  "nl": "Langzaam (40%)"
                 }
               },
               {
                 "id": "medium",
                 "title": {
-                  "en": "Medium (60%)"
+                  "en": "Medium (60%)",
+                  "nl": "Gemiddeld (60%)"
                 }
               },
               {
                 "id": "high",
                 "title": {
-                  "en": "High (80%)"
+                  "en": "High (80%)",
+                  "nl": "Hoog (80%)"
                 }
               },
               {
                 "id": "full",
                 "title": {
-                  "en": "Full (100%)"
+                  "en": "Turbo (100%)",
+                  "nl": "Turbo (100%)"
                 }
               },
               {
                 "id": "auto",
                 "title": {
-                  "en": "Auto"
+                  "en": "Auto",
+                  "nl": "Automatisch"
                 }
               }
             ]
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_fan_speed"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_set_false",
+        "title": {
+          "en": "Disable freeze protection mode",
+          "nl": "Bescherming tegen bevriezen uitschakelen"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+          }
+        ]
+      },
+      {
+        "id": "thermostat_freeze_protection_set_true",
+        "title": {
+          "en": "Enable freeze protection mode",
+          "nl": "Bescherming tegen bevriezen inschakelen"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
           }
         ]
       },
       {
         "id": "thermostat_swing_mode_set",
         "title": {
-          "en": "Set the swing mode to [[value]]"
+          "en": "Set the swing mode to",
+          "nl": "Schommel modus aanpassen naar"
         },
         "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
-          },
           {
             "name": "swing_mode",
             "type": "dropdown",
@@ -509,28 +551,37 @@
               {
                 "id": "off",
                 "title": {
-                  "en": "Off"
+                  "en": "Off",
+                  "nl": "Uit"
                 }
               },
               {
                 "id": "vertical",
                 "title": {
-                  "en": "Vertical"
+                  "en": "Vertical",
+                  "nl": "Verticaal"
                 }
               },
               {
                 "id": "horizontal",
                 "title": {
-                  "en": "Horizontal"
+                  "en": "Horizontal",
+                  "nl": "Horizontaal"
                 }
               },
               {
                 "id": "both",
                 "title": {
-                  "en": "Both"
+                  "en": "Both",
+                  "nl": "Beide"
                 }
               }
             ]
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=airco&capabilities=thermostat_swing_mode"
           }
         ]
       }
@@ -539,7 +590,8 @@
   "drivers": [
     {
       "name": {
-        "en": "Airconditioning"
+        "en": "Airconditioning",
+        "nl": "Airconditioning"
       },
       "class": "thermostat",
       "capabilities": [
@@ -595,19 +647,24 @@
           "options": {
             "logo": "/drivers/airco/assets/icon.svg",
             "title": {
-              "en": "Log in with your credentials"
+              "en": "Log in with your credentials",
+              "nl": "Meld u aan met uw inloggegevens"
             },
             "usernameLabel": {
-              "en": "E-mail address"
+              "en": "E-mail address",
+              "nl": "E-mailadres"
             },
             "usernamePlaceholder": {
-              "en": "john@doe.com"
+              "en": "john@doe.com",
+              "nl": "gebruiker@domein.com"
             },
             "passwordLabel": {
-              "en": "Password"
+              "en": "Password",
+              "nl": "Wachtwoord"
             },
             "passwordPlaceholder": {
-              "en": "Password"
+              "en": "Password",
+              "nl": "Wachtwoord"
             }
           },
           "navigation": {
@@ -630,13 +687,15 @@
           "id": "polling_interval",
           "type": "number",
           "label": {
-            "en": "Polling interval"
+            "en": "Polling interval",
+            "nl": "Polling-interval"
           },
           "value": 15,
           "min": 15,
           "max": 600,
           "units": {
-            "en": "seconds"
+            "en": "seconds",
+            "nl": "seconden"
           }
         },
         {
@@ -698,7 +757,8 @@
     "thermostat_boost": {
       "type": "boolean",
       "title": {
-        "en": "Boost"
+        "en": "Boost Mode",
+        "nl": "Turbo modus"
       },
       "getable": true,
       "setable": true,
@@ -708,7 +768,8 @@
     "thermostat_eco": {
       "type": "boolean",
       "title": {
-        "en": "ECO Mode"
+        "en": "ECO Mode",
+        "nl": "ECO Modus"
       },
       "getable": true,
       "setable": true,
@@ -718,46 +779,54 @@
     "thermostat_fan_speed": {
       "type": "enum",
       "title": {
-        "en": "Fan speed"
+        "en": "Fan speed",
+        "nl": "Ventilatorsnelheid"
       },
       "desc": {
-        "en": "Speed of the fan"
+        "en": "Speed of the fan",
+        "nl": "De snelheid van de ventilator"
       },
       "values": [
         {
           "id": "silent",
           "title": {
-            "en": "Silent (20%)"
+            "en": "Silent (20%)",
+            "nl": "Stil (20%)"
           }
         },
         {
           "id": "low",
           "title": {
-            "en": "Low (40%)"
+            "en": "Low (40%)",
+            "nl": "Langzaam (40%)"
           }
         },
         {
           "id": "medium",
           "title": {
-            "en": "Medium (60%)"
+            "en": "Medium (60%)",
+            "nl": "Gemiddeld (60%)"
           }
         },
         {
           "id": "high",
           "title": {
-            "en": "High (80%)"
+            "en": "High (80%)",
+            "nl": "Hoog (80%)"
           }
         },
         {
           "id": "full",
           "title": {
-            "en": "Full (100%)"
+            "en": "Turbo (100%)",
+            "nl": "Turbo (100%)"
           }
         },
         {
           "id": "auto",
           "title": {
-            "en": "Auto"
+            "en": "Auto",
+            "nl": "Automatisch"
           }
         }
       ],
@@ -768,7 +837,8 @@
     "thermostat_freeze_protection": {
       "type": "boolean",
       "title": {
-        "en": "Freeze Protection"
+        "en": "Freeze Protection Mode",
+        "nl": "Bescherming tegen bevriezen"
       },
       "getable": true,
       "setable": true,
@@ -778,34 +848,40 @@
     "thermostat_swing_mode": {
       "type": "enum",
       "title": {
-        "en": "Swing mode"
+        "en": "Swing mode",
+        "nl": "Schommel modus"
       },
       "desc": {
-        "en": "Mode of the swing"
+        "en": "Mode of the swing",
+        "nl": "Schommel modus"
       },
       "values": [
         {
           "id": "off",
           "title": {
-            "en": "Off"
+            "en": "Off",
+            "nl": "Uit"
           }
         },
         {
           "id": "vertical",
           "title": {
-            "en": "Vertical"
+            "en": "Vertical",
+            "nl": "Verticaal"
           }
         },
         {
           "id": "horizontal",
           "title": {
-            "en": "Horizontal"
+            "en": "Horizontal",
+            "nl": "Horizontaal"
           }
         },
         {
           "id": "both",
           "title": {
-            "en": "Both"
+            "en": "Both",
+            "nl": "Beide"
           }
         }
       ],

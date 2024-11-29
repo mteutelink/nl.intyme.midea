@@ -1,49 +1,69 @@
 [
 	{
-	  "id": "polling_interval",
-	  "type": "number",
-	  "label": { "en": "Polling interval" },
-	  "value": 15,
-	  "min": 15,
-	  "max": 600,
-	  "units": { "en": "seconds" }
+		"id": "polling_interval",
+		"type": "number",
+		"label": {
+			"en": "Polling interval",
+			"nl": "Polling-interval"
+		},
+		"value": 15,
+		"min": 15,
+		"max": 600,
+		"units": {
+			"en": "seconds",
+			"nl": "seconden"
+		}
 	},
 	{
 		"id": "debug_level",
 		"type": "dropdown",
-		"label": { "en": "Debug level" },
+		"label": {
+			"en": "Debug level"
+		},
 		"value": "info",
 		"values": [
 			{
-			  "id": "error",
-			  "label": { "en": "Error" }
+				"id": "error",
+				"label": {
+					"en": "Error"
+				}
 			},
 			{
-			  "id": "warn",
-			  "label": { "en": "Warning" }
+				"id": "warn",
+				"label": {
+					"en": "Warning"
+				}
 			},
 			{
-			  "id": "info",
-			  "label": { "en": "Information" }
+				"id": "info",
+				"label": {
+					"en": "Information"
+				}
 			},
 			{
-			  "id": "http",
-			  "label": { "en": "HTTP" }
+				"id": "http",
+				"label": {
+					"en": "HTTP"
+				}
 			},
 			{
-			  "id": "verbose",
-			  "label": { "en": "Verbose" }
+				"id": "verbose",
+				"label": {
+					"en": "Verbose"
+				}
 			},
 			{
-			  "id": "debug",
-			  "label": { "en": "Debug" }
+				"id": "debug",
+				"label": {
+					"en": "Debug"
+				}
 			},
 			{
-			  "id": "silly",
-			  "label": { "en": "Silly" }
+				"id": "silly",
+				"label": {
+					"en": "Silly"
+				}
 			}
-		  ]
-
-	  }
-  ]
-  
+		]
+	}
+]

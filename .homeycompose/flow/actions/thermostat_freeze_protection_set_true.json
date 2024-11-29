@@ -1,0 +1,12 @@
+{
+	"id": "thermostat_freeze_protection_set_true",
+	"title": {
+		"en": "Enable freeze protection mode",
+		"nl": "Bescherming tegen bevriezen inschakelen"
+	},
+	"args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+    }]
+}

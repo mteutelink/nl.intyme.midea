@@ -1,0 +1,12 @@
+{
+	"id": "thermostat_eco_false",
+	"title": {
+		"en": "ECO mode is disabled",
+		"nl": "ECO modus is uitgeschakeld"
+	},
+	"args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=airco&capabilities=thermostat_eco"
+    }]
+}

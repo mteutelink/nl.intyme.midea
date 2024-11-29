@@ -1,0 +1,12 @@
+{
+	"id": "thermostat_boost_true",
+	"title": {
+		"en": "Boost mode is enabled",
+		"nl": "Turbo modus is uitgeschakeld"
+	},
+	"args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=airco&capabilities=thermostat_boost"
+    }]
+}

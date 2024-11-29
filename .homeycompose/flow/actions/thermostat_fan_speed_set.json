@@ -1,0 +1,62 @@
+{
+	"id": "thermostat_fan_speed_set",
+	"title": {
+		"en": "Set the fan speed to",
+		"nl": "Ventilatorsnelheid aanpassen naar"
+	},
+	"args": [
+		{
+			"name": "fan_speed",
+			"type": "dropdown",
+			"values": [
+				{
+					"id": "silent",
+					"title": {
+						"en": "Silent (20%)",
+						"nl": "Stil (20%)"
+					}
+				},
+				{
+					"id": "low",
+					"title": {
+						"en": "Low (40%)",
+						"nl": "Langzaam (40%)"
+					}
+				},
+				{
+					"id": "medium",
+					"title": {
+						"en": "Medium (60%)",
+						"nl": "Gemiddeld (60%)"
+					}
+				},
+				{
+					"id": "high",
+					"title": {
+						"en": "High (80%)",
+						"nl": "Hoog (80%)"
+					}
+				},
+				{
+					"id": "full",
+					"title": {
+						"en": "Turbo (100%)",
+						"nl": "Turbo (100%)"
+					}
+				},
+				{
+					"id": "auto",
+					"title": {
+						"en": "Auto",
+						"nl": "Automatisch"
+					}
+				}
+			]
+		},
+		{
+			"name": "device",
+			"type": "device",
+			"filter": "driver_id=airco&capabilities=thermostat_fan_speed"
+		}
+	]
+}
