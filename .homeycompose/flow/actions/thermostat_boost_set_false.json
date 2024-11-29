@@ -1,0 +1,12 @@
+{
+	"id": "thermostat_boost_set_false",
+	"title": {
+		"en": "Disable boost mode",
+		"nl": "Turbo modus uitschakelen"
+	},
+	"args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=airco&capabilities=thermostat_boost"
+    }]
+}

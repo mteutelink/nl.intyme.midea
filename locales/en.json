@@ -1,1 +1,9 @@
-{}
+{
+  "login_credentials": {
+    "title": "Log in with your credentials",
+    "usernameLabel": "E-mail Address",
+    "usernamePlaceholder": "john@doe.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Password"
+  }
+}

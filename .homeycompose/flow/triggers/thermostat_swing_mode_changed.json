@@ -1,0 +1,48 @@
+{
+	"id": "thermostat_swing_mode_changed",
+	"title": {
+		"en": "Swing mode has changed to",
+		"nl": "Schommel modus is aangepast naar"
+	},
+	"args": [
+		{
+			"name": "swing_mode",
+			"type": "dropdown",
+			"values": [
+				{
+					"id": "off",
+					"title": {
+						"en": "Off",
+						"nl": "Uit"
+					}
+				},
+				{
+					"id": "vertical",
+					"title": {
+						"en": "Vertical",
+						"nl": "Verticaal"
+					}
+				},
+				{
+					"id": "horizontal",
+					"title": {
+						"en": "Horizontal",
+						"nl": "Horizontaal"
+					}
+				},
+				{
+					"id": "both",
+					"title": {
+						"en": "Both",
+						"nl": "Beide"
+					}
+				}
+			]
+		},
+		{
+			"name": "device",
+			"type": "device",
+			"filter": "driver_id=airco&capabilities=thermostat_swing_mode"
+		}
+	]
+}

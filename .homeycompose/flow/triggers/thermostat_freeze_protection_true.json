@@ -1,0 +1,12 @@
+{
+	"id": "thermostat_freeze_protection_true",
+	"title": {
+		"en": "Freeze protection mode is enabled",
+		"nl": "Bescherming tegen bevriezen is ingeschakeld"
+	},
+	"args": [{
+        "name": "device",
+        "type": "device",
+		"filter": "driver_id=airco&capabilities=thermostat_freeze_protection"
+    }]
+}

@@ -1,6 +1,6 @@
 {
   "id": "nl.intyme.midea",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "bugs": {
     "url": "https://github.com/mteutelink/nl.intyme.midea/issues"
   },
@@ -14,7 +14,8 @@
     "en": "Midea"
   },
   "description": {
-    "en": "Adds support for Midea appliances."
+    "en": "Midea HVAC Solutions - Smart climate controls",
+    "en": "Midea HVAC Oplossingen - Slimme klimaat controle"
   },
   "category": [
     "climate"
