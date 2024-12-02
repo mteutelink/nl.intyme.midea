@@ -22,5 +22,8 @@
   },
   "1.0.7": {
     "en": "Added repair via relogin"
+  },
+  "1.0.8": {
+    "en": "Bugfixes"
   }
 }
