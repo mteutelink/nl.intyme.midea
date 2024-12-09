@@ -65,14 +65,18 @@ export class MideaDevice extends Homey.Device {
         case OPERATIONAL_MODE.AUTO: this.setCapabilityValue("thermostat_mode", "auto"); break;
         case OPERATIONAL_MODE.COOL: this.setCapabilityValue("thermostat_mode", "cool"); break;
         case OPERATIONAL_MODE.HEAT: this.setCapabilityValue("thermostat_mode", "heat"); break;
-        case OPERATIONAL_MODE.DRY: this.log("Thermostat mode 'dry' not supported"); break;
-        case OPERATIONAL_MODE.FAN: this.log("Thermostat mode 'fan' not supported"); break;
+        case OPERATIONAL_MODE.DRY: this.setCapabilityValue("thermostat_mode", "dry"); break;
+        case OPERATIONAL_MODE.FAN: this.setCapabilityValue("thermostat_mode", "fan"); break;
       }
     } else {
       this.setCapabilityValue("thermostat_mode", "off");
     }
     this.setCapabilityValue("thermostat_boost", state.turboMode);
+
     this.setCapabilityValue("target_temperature", state.targetTemperature);
+    if (state.operationalMode == OPERATIONAL_MODE.FAN) {
+      this.setCapabilityValue("target_temperature", state.indoorTemperature);
+    }
     this.setCapabilityValue("measure_temperature", state.indoorTemperature);
     this.setCapabilityValue("measure_temperature.outside", state.outdoorTemperature);
     switch (state.fanSpeed) {
@@ -158,6 +162,8 @@ export class MideaDevice extends Homey.Device {
             case "auto": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.AUTO; break;
             case "cool": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.COOL; break;
             case "heat": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.HEAT; break;
+            case "dry": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.DRY; break;
+            case "fan": state.powerOn = true; state.operationalMode = OPERATIONAL_MODE.FAN; break;
             case "off": state.powerOn = false; break; /* this behaves exactly the same as the onoff button */
             default:
               this.log("Value '" + value + "' for capability 'thermostat_mode' does not exist");
