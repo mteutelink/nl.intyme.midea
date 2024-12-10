@@ -1,6 +1,6 @@
 import Homey, { Device } from 'homey';
 import { Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, SecurityContext as MSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
-import { FAN_SPEED, SWING_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
+import { FAN_SPEED, SWING_MODE, OPERATIONAL_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 import { MideaDevice } from './device'
 
 class MideaDriver extends Homey.Driver {
@@ -93,6 +93,27 @@ class MideaDriver extends Homey.Driver {
 
         this.homey.flow.getActionCard('thermostat_swing_mode_set').registerRunListener(async (args, state) => {
           await args.device.onCapability("thermostat_swing_mode", args.swing_mode, null);
+        });
+
+        // THERMOSTAT MODE
+        this.homey.flow.getTriggerCard('thermostat_mode_changed').registerRunListener(async (args, state) => {
+          return args.thermostat_mode === state.value;
+        });
+
+        this.homey.flow.getConditionCard('thermostat_mode_is').registerRunListener(async (args, state) => {
+          let deviceState: DeviceState = await new GetStateCommand(args.device._device).execute();
+          switch (deviceState.operationalMode) {
+            case OPERATIONAL_MODE.AUTO: return args.thermostat_mode === "auto"; break;
+            case OPERATIONAL_MODE.COOL: return args.thermostat_mode === "cool"; break;
+            case OPERATIONAL_MODE.HEAT: return args.thermostat_mode === "heat"; break;
+            case OPERATIONAL_MODE.DRY: return args.thermostat_mode === "dry"; break;
+            case OPERATIONAL_MODE.FAN: return args.thermostat_mode ===  "fan"; break;
+          }
+          return false;
+        });
+
+        this.homey.flow.getActionCard('thermostat_mode_set').registerRunListener(async (args, state) => {
+          await args.device.onCapability("thermostat_mode", args.thermostat_mode, null);
         });
   }
 
