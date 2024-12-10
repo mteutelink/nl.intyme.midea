@@ -1,0 +1,62 @@
+{
+	"id": "thermostat_mode_is",
+	"title": {
+		"en": "Thermostat mode !{{is|is not}}",
+		"nl": "Thermostaat modus !{{is|is niet}}"
+	},
+	"args": [
+		{
+			"name": "thermostat_mode",
+			"type": "dropdown",
+			"values": [
+				{
+					"id": "off",
+					"title": {
+						"en": "Off",
+						"nl": "Uit"
+					}
+				},
+				{
+					"id": "heat",
+					"title": {
+						"en": "Heat",
+						"nl": "Verwarmen"
+					}
+				},
+				{
+					"id": "cool",
+					"title": {
+						"en": "Cool",
+						"nl": "Koelen"
+					}
+				},
+				{
+					"id": "dry",
+					"title": {
+						"en": "Dry",
+						"nl": "Drogen"
+					}
+				},
+				{
+					"id": "fan",
+					"title": {
+						"en": "Fan",
+						"nl": "Ventilator"
+					}
+				},
+				{
+					"id": "auto",
+					"title": {
+						"en": "Automatic",
+						"nl": "Automatisch"
+					}
+				}
+			]		
+		},
+		{
+			"name": "device",
+			"type": "device",
+			"filter": "driver_id=airco&capabilities=thermostat_mode"
+		}
+	]
+}
