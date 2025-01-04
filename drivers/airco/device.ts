@@ -37,8 +37,8 @@ export class MideaDevice extends Homey.Device {
       // INITIALIZE POLLING
       const settings = this.getSettings();
       this._initializePolling(settings.polling_interval);
-    } catch (error) {
-      this.error(error);
+    } catch (err) {
+      this.error(err);
       throw new Error("Cannot initialize device");
     }
   }
@@ -51,7 +51,7 @@ export class MideaDevice extends Homey.Device {
           const state: DeviceState = await new GetStateCommand(this._device).execute();
           this._updateState(state);
         } catch (err) {
-          this.log("error = " + err);
+          this.error(err);
         }
       }
     }, pollingInterval * 1000);
@@ -246,6 +246,8 @@ export class MideaDevice extends Homey.Device {
 
       state = await new SetStateCommand(this._device, state).execute();
       this._updateState(state);
+    } catch(err) {
+      this.error(err);
     } finally {
       this._updatingState = false;
     }
