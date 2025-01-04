@@ -4,6 +4,7 @@
     "usernameLabel": "E-mailadres",
     "usernamePlaceholder": "john@doe.nl",
     "passwordLabel": "Wachtwoord",
-    "passwordPlaceholder": "Wachtwoord"
+    "passwordPlaceholder": "Wachtwoord",
+    "error_adding_device": "Fout bij het toevoegen van een device"
   }
 }

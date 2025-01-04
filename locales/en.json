@@ -4,6 +4,7 @@
     "usernameLabel": "E-mail Address",
     "usernamePlaceholder": "john@doe.com",
     "passwordLabel": "Password",
-    "passwordPlaceholder": "Password"
+    "passwordPlaceholder": "Password",
+    "error_adding_device": "Error while adding device"
   }
 }
