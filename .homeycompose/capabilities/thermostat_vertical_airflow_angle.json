@@ -1,0 +1,14 @@
+{
+	"type": "number",
+	"title": {
+		"en": "Vertical air flow angle",
+		"nl": "Verticale luchtstroomhoek"
+	},
+	"desc": {
+		"en": "Vertical air flow angle",
+		"nl": "Verticale luchtstroomhoek"
+	},
+	"getable": true,
+	"setable": true,
+	"uiComponent": "slider"
+}

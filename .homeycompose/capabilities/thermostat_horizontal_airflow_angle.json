@@ -1,0 +1,18 @@
+{
+	"type": "number",
+	"title": {
+		"en": "Horizontal air flow angle",
+		"nl": "Horizontale luchtstroomhoek"
+	},
+	"desc": {
+		"en": "Horizontal air flow angle",
+		"nl": "Horizontale luchtstroomhoek"
+	},
+	"label": {
+		"en": "%"
+	},
+	"getable": true,
+	"setable": true,
+	"uiComponent": "slider",
+	"icon": "/assets/images/thermostat_horizontal_airflow_left.svg"
+}
