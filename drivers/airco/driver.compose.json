@@ -14,7 +14,9 @@
     "thermostat_fan_speed",
     "thermostat_swing_mode",
     "thermostat_eco",
-    "thermostat_freeze_protection"
+    "thermostat_freeze_protection",
+    "thermostat_horizontal_airflow_angle",
+    "thermostat_vertical_airflow_angle"
   ],
   "capabilitiesOptions": {
     "target_temperature": {
@@ -33,6 +35,16 @@
         "en": "Outside temperature",
         "nl": "Buitentemperatuur"
       }
+    },
+    "thermostat_horizontal_airflow_angle": {
+      "min": 0,
+      "max": 100,
+      "step": 25
+    },
+    "thermostat_vertical_airflow_angle": {
+      "min": 0,
+      "max": 100,
+      "step": 25
     }
   },
   "platforms": [
