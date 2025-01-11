@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1"
+  xmlns:xl="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"
+  viewBox="215 171 500 500" width="500" height="500">
+  <defs />
+  <g id="Canvas" stroke-opacity="1" stroke-dasharray="none" stroke="none" fill="none"
+    fill-opacity="1">
+    <title>Canvas</title>
+    <g id="Graphic">
+      <title>Graphic</title>
+      <rect x="440.25585" y="215.43914" width="148.7528" height="410.974" stroke="black"
+        stroke-linecap="round" stroke-linejoin="round" stroke-width="20" />
+    </g>
+    <g id="Line_0">
+      <title>Line_0</title>
+      <line x1="340.99135" y1="200.5" x2="417.9339" y2="280.2761" stroke="black"
+        stroke-linecap="round" stroke-linejoin="round" stroke-width="20" />
+    </g>
+    <g id="Line_25">
+      <title>Line_25</title>
+      <line x1="340.99135" y1="318.9325" x2="417.9339" y2="352.7212" stroke="#ebebeb"
+        stroke-linecap="round" stroke-linejoin="round" stroke-width="20" />
+    </g>
+    <g id="Line_50">
+      <title>Line_50</title>
+      <line x1="340.99135" y1="420.655" x2="417.9339" y2="421.66923" stroke="#ebebeb"
+        stroke-linecap="round" stroke-linejoin="round" stroke-width="20" />
+    </g>
+    <g id="Line_75">
+      <title>Line_75</title>
+      <line x1="340.99135" y1="523.0675" x2="417.9339" y2="489.27883" stroke="#ebebeb"
+        stroke-linecap="round" stroke-linejoin="round" stroke-width="20" />
+    </g>
+    <g id="Line_100">
+      <title>Line_100</title>
+      <line x1="340.99135" y1="641.5" x2="417.9339" y2="561.7239" stroke="#ebebeb"
+        stroke-linecap="round" stroke-linejoin="round" stroke-width="20" />
+    </g>
+  </g>
+</svg>
