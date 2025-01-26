@@ -1,0 +1,72 @@
+<html>
+
+<body>
+	<script type="application/javascript">
+		$(document).ready( function() {
+			const navBarFromTokenAndKey = document.getElementById("hy-nav");
+			if(navBarFromTokenAndKey) {
+				navBarFromTokenAndKey.remove();
+			}
+
+			Homey.getViewStoreValue("add_devices", "devices").then(devices => {
+				if (devices[0] && devices[0].store.token && devices[0].store.key) {
+					document.getElementById("token").value = devices[0].store.token;
+					document.getElementById("key").value = devices[0].store.key;
+				}
+			});
+		});
+
+		function enterTokenAndKey(event) {
+			event.preventDefault();
+
+			Homey.showLoadingOverlay();
+
+			if (document.getElementById("token").value && document.getElementById("key").value) {
+				Homey.getViewStoreValue("add_devices", "devices").then(devices => {
+					Homey.emit('enterTokenAndKey', {
+							devices: devices,
+							token: document.getElementById("token").value,
+							key: document.getElementById("key").value
+						},
+						function (error, device) {
+							if (error) {
+								Homey.error(error);
+								document.getElementById("token").value = "";
+								document.getElementById("key").value = "";
+							} else if (!device) {
+								Homey.error(Homey.__("pair.error_adding_device"));
+								document.getElementById("token").value = "";
+								document.getElementById("key").value = "";
+							} else if (device) {
+								Homey.setViewStoreValue("add_devices", "devices", [device]);
+								Homey.showView("add_devices");
+							}
+							Homey.hideLoadingOverlay();
+						},
+					);
+				});
+			} else {
+				Homey.showView("login_credentials");
+			}
+		};
+	</script>
+
+	<div id="token-and-key">
+		<form id="toke-and-key-form" class="homey-form">
+			<h1 id="token-and-key-title" class="homey-title homey-text-align-center" data-i18n="pair.token_and_key.title">
+				Enter TOKEN and KEY of the device</h1>
+			<span data-i18n="pair.token_and_key.message"></span>
+			<div class="homey-form-group-large">
+				<label class="homey-form-label" for="token" data-i18n="pair.token_and_key.tokenLabel">TOKEN</label>
+				<input class="homey-form-input-large" id="token" name="token" type="text" value=""/>
+			</div>
+			<div class="homey-form-group-large">
+				<label class="homey-form-label" for="key" data-i18n="pair.token_and_key.keyLabel">KEY</label>
+				<input class="homey-form-input-large" id="key" name="key" type="text" value=""/>
+			</div>
+			<button class="homey-button-primary-shadow-full" onclick="enterTokenAndKey(event)">Continue</button>
+		</form>
+	</div>
+</body>
+
+</html>

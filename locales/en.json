@@ -1,9 +1,38 @@
 {
-  "login_credentials": {
-    "title": "Log in with your credentials",
-    "usernameLabel": "E-mail Address",
-    "usernamePlaceholder": "john@doe.com",
-    "passwordLabel": "Password",
-    "passwordPlaceholder": "Password"
+  "pair": {
+    "error_adding_device": "Error while adding device",
+    "token_and_key": {
+      "title": "Enter token and key of the device",
+      "message": "If the token and key of the device are known, values can be entered here. they can be entered manually or automatically retrieved from the cloud in the next screen (leave fields empty and press continue).",
+      "tokenLabel": "Token",
+      "keyLabel": "Key",
+      "ipAdressLabel": "IP Address"
+    },
+    "login_credentials": {
+      "title": "Log in with your credentials",
+      "message": "Please enter the username (email address) and password of your MSmartHome account to log in to the cloud and retrieve the token and key automatically.",
+      "usernameLabel": "E-mail Address",
+      "usernamePlaceholder": "john@doe.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Password"
+    }
+  },
+  "repair": {
+    "error_repairing_device": "Error while repairing device; please remove and add again",
+    "token_and_key": {
+      "title": "Enter token and key of the device",
+      "message": "The ip address of the device has been corrected. If the ip address has changed the token and key is empty, otherwise the current token and key are shown. If empty they can be entered manually or automatically retrieved from the cloud in the next screen (leave fields empty and press continue).",
+      "tokenLabel": "Token",
+      "keyLabel": "Key",
+      "ipAdressLabel": "IP Address"
+    },
+    "login_credentials": {
+      "title": "Log in with your credentials",
+      "message": "Please enter the username (email address) and password of your MSmartHome account to log in to the cloud and retrieve the token and key automatically.",
+      "usernameLabel": "E-mail Address",
+      "usernamePlaceholder": "john@doe.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Password"
+    }
   }
 }

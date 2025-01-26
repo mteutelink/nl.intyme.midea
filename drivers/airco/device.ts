@@ -1,5 +1,5 @@
 import Homey from 'homey';
-import { Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, SecurityContext as MSecurityContext, SetStateCommand, _LOGGER } from 'midea-msmarthome-ac-euosk105';
+import { Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, LANSecurityContext, CloudSecurityContext,  SetStateCommand, _LOGGER } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, OPERATIONAL_MODE, SWING_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
 export class MideaDevice extends Homey.Device {
@@ -22,7 +22,14 @@ export class MideaDevice extends Homey.Device {
       deviceContext.port = this.getStore().port;
       this._device = new MDevice(deviceContext);
 
-      await this._device.authenticate(new MSecurityContext(this.getStore().username, this.getStore().password));
+      // RETRIEVE TOKEN AND KEY FROM USERNAME PASSWORD IF NOT ADDED DURING PAIRING
+      if (!this.getStore().token || !this.getStore().key) {
+        let cloudSecurityContext: CloudSecurityContext =  new CloudSecurityContext(this.getStore().username, this.getStore().password);
+        let lanSecurityContext: LANSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(this._device, cloudSecurityContext);
+        this.setStoreValue("token",  lanSecurityContext.token);
+        this.setStoreValue("key",  lanSecurityContext.key);
+      }
+      await this._device.authenticate(new LANSecurityContext(this.getStore().token, this.getStore().key));
 
       // REGISTER CAPABILITY LISTENERS
       this.registerCapabilityListener("onoff", async (value, opts) => { return this.onCapability("onoff", value, opts); });
@@ -37,21 +44,28 @@ export class MideaDevice extends Homey.Device {
       // INITIALIZE POLLING
       const settings = this.getSettings();
       this._initializePolling(settings.polling_interval);
-    } catch (error) {
-      this.error(error);
+    } catch (err) {
+      this.error(err);
       throw new Error("Cannot initialize device");
     }
   }
 
-  private _initializePolling(pollingInterval: number) {
+  private async _initializePolling(pollingInterval: number) {
+    // CLEAR POLLING
     if (this._intervalId) this.homey.clearInterval(this._intervalId);
+
+    // UPDATE STATE ONCE, NEXT TIME IS AFTER POLLINGINTERVAL
+    const state: DeviceState = await new GetStateCommand(this._device).execute();
+    this._updateState(state);
+
+    // SET POLLER
     this._intervalId = this.homey.setInterval(async () => {
       if (!this._updatingState) {
         try {
           const state: DeviceState = await new GetStateCommand(this._device).execute();
           this._updateState(state);
         } catch (err) {
-          this.log("error = " + err);
+          this.error(err);
         }
       }
     }, pollingInterval * 1000);
@@ -246,6 +260,8 @@ export class MideaDevice extends Homey.Device {
 
       state = await new SetStateCommand(this._device, state).execute();
       this._updateState(state);
+    } catch(err) {
+      this.error(err);
     } finally {
       this._updatingState = false;
     }

@@ -1,0 +1,79 @@
+<html>
+
+<body>
+	<script type="application/javascript">
+		$(document).ready( function() {
+			const navBarFromTokenAndKey = document.getElementById("hy-nav");
+			if(navBarFromTokenAndKey) {
+				navBarFromTokenAndKey.remove();
+			}
+		});
+
+		Homey.showLoadingOverlay();
+		Homey.emit('reinitializeDevice', {}, function(error, deviceStoreValues) {
+			Homey.hideLoadingOverlay();
+			if (error) {
+				Homey.error(error);
+			} else if (!deviceStoreValues) {
+				Homey.error(Homey.__("repair.error_repairing_device"));
+			} else if (deviceStoreValues) {
+				document.getElementById("ipaddress").value = deviceStoreValues.host;
+				document.getElementById("token").value = deviceStoreValues.token;
+				document.getElementById("key").value = deviceStoreValues.key;
+			}
+		})
+
+		function enterTokenAndKey(event) {
+			event.preventDefault();
+
+			Homey.showLoadingOverlay();
+
+			if (document.getElementById("token").value && document.getElementById("key").value) {
+				Homey.emit('enterTokenAndKey', {
+						token: document.getElementById("token").value,
+						key: document.getElementById("key").value
+					},
+					function (error, device) {
+						if (error) {
+							Homey.error(error);
+							document.getElementById("token").value = "";
+							document.getElementById("key").value = "";
+						} else if (!device) {
+							Homey.error(Homey.__("repair.error_repairing_device"));
+							document.getElementById("token").value = "";
+							document.getElementById("key").value = "";
+						} else if (device) {
+							// PURPOSELY LEFT EMPTY
+						}
+						Homey.hideLoadingOverlay();
+					},
+				);
+			} else {
+				Homey.showView("login_credentials");
+			}
+		};
+	</script>
+
+	<div id="token-and-key">
+		<form id="toke-and-key-form" class="homey-form">
+			<h1 id="token-and-key-title" class="homey-title homey-text-align-center" data-i18n="repair.token_and_key.title">
+				Enter TOKEN and KEY of the device</h1>
+			<span data-i18n="repair.token_and_key.message"></span>
+			<div class="homey-form-group-large">
+				<label class="homey-form-label" for="ipaddress" data-i18n="repair.token_and_key.ipAdressLabel">IP-Address</label>
+				<input class="homey-form-input-large" id="ipaddress" name="ipaddress" type="text" readonly value="" />
+			</div>
+			<div class="homey-form-group-large">
+				<label class="homey-form-label" for="token" data-i18n="repair.token_and_key.tokenLabel">TOKEN</label>
+				<input class="homey-form-input-large" id="token" name="token" type="text" value=""/>
+			</div>
+			<div class="homey-form-group-large">
+				<label class="homey-form-label" for="key" data-i18n="repair.token_and_key.keyLabel">KEY</label>
+				<input class="homey-form-input-large" id="key" name="key" type="text" value=""/>
+			</div>
+			<button class="homey-button-primary-shadow-full" onclick="enterTokenAndKey(event)">Continue</button>
+		</form>
+	</div>
+</body>
+
+</html>

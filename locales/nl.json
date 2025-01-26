@@ -1,9 +1,38 @@
 {
-  "login_credentials": {
-    "title": "Meld u aan met uw inloggegevens",
-    "usernameLabel": "E-mailadres",
-    "usernamePlaceholder": "john@doe.nl",
-    "passwordLabel": "Wachtwoord",
-    "passwordPlaceholder": "Wachtwoord"
+  "pair": {
+    "error_adding_device": "Fout bij het toevoegen van een device",
+    "token_and_key": {
+      "title": "Voer de token en de key van het device in",
+      "message": "Als de token en de key van het apparaat bekend zijn, kunnen hier waarden worden ingevoerd. Deze kunnen handmatig worden ingevoerd of automatisch worden opgehaald uit de cloud in het volgende scherm (velden leeg laten en op Doorgaan drukken).",
+      "tokenLabel": "Token",
+      "keyLabel": "Key",
+      "ipAdressLabel": "IP Adres"
+    },
+    "login_credentials": {
+      "title": "Meld u aan met uw MSMartHome inloggegevens",
+      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw MSmartHome-account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen.",
+      "usernameLabel": "E-mail Address",
+      "usernamePlaceholder": "john@doe.com",
+      "passwordLabel": "Wachtwoord",
+      "passwordPlaceholder": "Wachtwoord"
+    }
+  },
+  "repair": {
+    "error_repairing_device": "Fout bij het repareren van een device; verwijder de device and voewg deze opnieuw toe",
+    "token_and_key": {
+      "title": "Voer de token en de key van het device in",
+      "message": "Het IP adres van het apparaat is gecorrigeerd. Als het IP-adres is gewijzigd, is het token en de sleutel leeg, anders worden de huidige token en sleutel weergegeven. Als ze leeg zijn, kunnen ze handmatig worden ingevoerd of automatisch worden opgehaald uit de cloud in het volgende scherm (velden leeg laten en op doorgaan drukken).",
+      "tokenLabel": "Token",
+      "keyLabel": "Key",
+      "ipAdressLabel": "IP Adres"
+    },
+    "login_credentials": {
+      "title": "Meld u aan met uw MSMartHome inloggegevens",
+      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw MSmartHome-account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen.",
+      "usernameLabel": "E-mail Adres",
+      "usernamePlaceholder": "john@doe.com",
+      "passwordLabel": "Wachtwoord",
+      "passwordPlaceholder": "Wachtwoord"
+    }
   }
 }
