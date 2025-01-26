@@ -1,13 +1,13 @@
 import Homey, { Device } from 'homey';
-import { _LOGGER, Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, SecurityContext as MSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
+import { _LOGGER, Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, CloudSecurityContext, LANSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, SWING_MODE, OPERATIONAL_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
-import { MideaDevice } from './device'
 
 class MideaDriver extends Homey.Driver {
   /**
    * onInit is called when the driver is initialized.
    */
   async onInit() {
+    _LOGGER.level = "debug";
     this.log('MideaDriver has been initialized');
 
     // THERMOSTAT BOOST
@@ -60,13 +60,13 @@ class MideaDriver extends Homey.Driver {
     this.homey.flow.getConditionCard('thermostat_fan_speed_is').registerRunListener(async (args, state) => {
       let deviceState: DeviceState = await new GetStateCommand(args.device._device).execute();
       switch (deviceState.fanSpeed) {
-        case FAN_SPEED.AUTO: return args.fan_speed === "auto"; 
-        case FAN_SPEED.FIXED: return args.fan_speed === "auto"; 
-        case FAN_SPEED.SILENT: return args.fan_speed === "silent"; 
-        case FAN_SPEED.LOW: return args.fan_speed === "low"; 
-        case FAN_SPEED.MEDIUM: return args.fan_speed === "medium"; 
-        case FAN_SPEED.HIGH: return args.fan_speed === "high"; 
-        case FAN_SPEED.FULL: return args.fan_speed === "full"; 
+        case FAN_SPEED.AUTO: return args.fan_speed === "auto";
+        case FAN_SPEED.FIXED: return args.fan_speed === "auto";
+        case FAN_SPEED.SILENT: return args.fan_speed === "silent";
+        case FAN_SPEED.LOW: return args.fan_speed === "low";
+        case FAN_SPEED.MEDIUM: return args.fan_speed === "medium";
+        case FAN_SPEED.HIGH: return args.fan_speed === "high";
+        case FAN_SPEED.FULL: return args.fan_speed === "full";
       }
       return false;
     });
@@ -83,10 +83,10 @@ class MideaDriver extends Homey.Driver {
     this.homey.flow.getConditionCard('thermostat_swing_mode_is').registerRunListener(async (args, state) => {
       let deviceState: DeviceState = await new GetStateCommand(args.device._device).execute();
       switch (deviceState.swingMode) {
-        case SWING_MODE.OFF: return args.swing_mode === "off"; 
-        case SWING_MODE.BOTH: return args.swing_mode === "both"; 
-        case SWING_MODE.VERTICAL: return args.swing_mode === "vertical"; 
-        case SWING_MODE.HORIZONTAL: return args.swing_mode === "horizontal"; 
+        case SWING_MODE.OFF: return args.swing_mode === "off";
+        case SWING_MODE.BOTH: return args.swing_mode === "both";
+        case SWING_MODE.VERTICAL: return args.swing_mode === "vertical";
+        case SWING_MODE.HORIZONTAL: return args.swing_mode === "horizontal";
       }
       return false;
     });
@@ -103,11 +103,11 @@ class MideaDriver extends Homey.Driver {
     this.homey.flow.getConditionCard('thermostat_mode_is').registerRunListener(async (args, state) => {
       let deviceState: DeviceState = await new GetStateCommand(args.device._device).execute();
       switch (deviceState.operationalMode) {
-        case OPERATIONAL_MODE.AUTO: return args.thermostat_mode === "auto"; 
-        case OPERATIONAL_MODE.COOL: return args.thermostat_mode === "cool"; 
-        case OPERATIONAL_MODE.HEAT: return args.thermostat_mode === "heat"; 
-        case OPERATIONAL_MODE.DRY: return args.thermostat_mode === "dry"; 
-        case OPERATIONAL_MODE.FAN: return args.thermostat_mode === "fan"; 
+        case OPERATIONAL_MODE.AUTO: return args.thermostat_mode === "auto";
+        case OPERATIONAL_MODE.COOL: return args.thermostat_mode === "cool";
+        case OPERATIONAL_MODE.HEAT: return args.thermostat_mode === "heat";
+        case OPERATIONAL_MODE.DRY: return args.thermostat_mode === "dry";
+        case OPERATIONAL_MODE.FAN: return args.thermostat_mode === "fan";
       }
       return false;
     });
@@ -145,6 +145,30 @@ class MideaDriver extends Homey.Driver {
       }
     });
 
+    session.setHandler("enterTokenAndKey", async (data: any) => {
+      try {
+        const device = data.devices[0]; 
+
+        let deviceContext: MDeviceContext = new MDeviceContext();
+        deviceContext.id = device.data.id;
+        deviceContext.macAddress = device.data.macAddress;
+        deviceContext.udpId = device.data.udpId;
+        deviceContext.host = device.store.host;
+        deviceContext.port = device.store.port;
+
+        let mdevice: MDevice = new MDevice(deviceContext)
+
+        await mdevice.authenticate(new LANSecurityContext(data.token, data.key));
+        device.store.token = data.token;
+        device.store.key = data.key;
+
+        return device;
+      } catch (err) {
+        this.error(err);
+        return null;
+      }
+    });
+
     session.setHandler("login", async (data: any) => {
       try {
         const device = data.devices[0];
@@ -158,9 +182,11 @@ class MideaDriver extends Homey.Driver {
 
         let mdevice: MDevice = new MDevice(deviceContext)
 
-        let securityContext: MSecurityContext = await mdevice.authenticate(new MSecurityContext(data.username, data.password));
-        device.store.username = securityContext.account;
-        device.store.password = securityContext.password;
+        let cloudSecurityContext: CloudSecurityContext = new CloudSecurityContext(data.username, data.password);
+        let lanSecurityContext: LANSecurityContext  = await MDriver.retrieveTokenAndKeyFromCloud(mdevice, cloudSecurityContext);
+        device.store.token = lanSecurityContext.token;
+        device.store.key = lanSecurityContext.key;
+
         return device;
       } catch (err) {
         this.error(err);
@@ -170,11 +196,62 @@ class MideaDriver extends Homey.Driver {
   }
 
   async onRepair(session: any, device: Device) {
-    session.setHandler("relogin", async (data: any) => {
+    session.setHandler("reinitializeDevice", async (data: any) => {
+      const mdevices = await MDriver.listDevices();
+			const mdevice = mdevices.find((mdevice) => device.getData().id === mdevice.deviceContext.id);
+      if(mdevice) {
+        if (mdevice.deviceContext.host !== device.getStore().host) {
+          // IP ADDRESS OF THE DEVICE HAS CHANGED ==> RESET HOST and CLEAR TOKEN AND KEY
+          device.setStoreValue("host", mdevice.deviceContext.host);
+          device.setStoreValue("port", mdevice.deviceContext.port);
+          device.setStoreValue("token", null);
+          device.setStoreValue("key", null);
+        }
+        return device.getStore();
+      }
+      return null;
+    })
+
+    session.setHandler("enterTokenAndKey", async (data: any) => {
       try {
-        let securityContext: MSecurityContext = await (<MideaDevice>device)._device.authenticate(new MSecurityContext(data.username, data.password));
-        device.setStoreValue("username", securityContext.account);
-        device.setStoreValue("password", securityContext.password);
+        let deviceContext: MDeviceContext = new MDeviceContext();
+        deviceContext.id = device.getData().id;
+        deviceContext.macAddress = device.getData().macAddress;
+        deviceContext.udpId = device.getData().udpId;
+        deviceContext.host = device.getStore().host;
+        deviceContext.port = device.getStore().port;
+
+        let mdevice: MDevice = new MDevice(deviceContext)
+
+        await mdevice.authenticate(new LANSecurityContext(data.token, data.key));
+        device.setStoreValue("token", data.token);
+        device.setStoreValue("key", data.key);
+
+        await device.onInit();
+        await session.done();
+        return device;
+      } catch (err) {
+        this.error(err);
+        return null;
+      }
+    });
+
+    session.setHandler("login", async (data: any) => {
+      try {
+        let deviceContext: MDeviceContext = new MDeviceContext();
+        deviceContext.id = device.getData().id;
+        deviceContext.macAddress = device.getData().macAddress;
+        deviceContext.udpId = device.getData().udpId;
+        deviceContext.host = device.getStore().host;
+        deviceContext.port = device.getStore().port;
+
+        let mdevice: MDevice = new MDevice(deviceContext)
+
+        let cloudSecurityContext: CloudSecurityContext = new CloudSecurityContext(data.username, data.password);
+        let lanSecurityContext: LANSecurityContext  = await MDriver.retrieveTokenAndKeyFromCloud(mdevice, cloudSecurityContext);
+        device.setStoreValue("token", lanSecurityContext.token);
+        device.setStoreValue("key", lanSecurityContext.key);
+
         return device;
       } catch (err) {
         this.error(err);

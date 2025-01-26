@@ -49,6 +49,12 @@
         "singular": true
       },
       "navigation": {
+        "next": "token_and_key"
+      }
+    },
+    {
+      "id": "token_and_key",
+      "navigation": {
         "next": "login_credentials"
       }
     },
@@ -65,7 +71,13 @@
   ],
   "repair": [
     {
-      "id": "relogin_credentials"
+      "id": "token_and_key",
+      "navigation": {
+        "next": "login_credentials"
+      }
+    },
+    {
+      "id": "login_credentials"
     }
   ],
   "images": {
