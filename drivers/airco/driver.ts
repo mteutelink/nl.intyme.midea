@@ -7,7 +7,6 @@ class MideaDriver extends Homey.Driver {
    * onInit is called when the driver is initialized.
    */
   async onInit() {
-    _LOGGER.level = "debug";
     this.log('MideaDriver has been initialized');
 
     // THERMOSTAT BOOST
