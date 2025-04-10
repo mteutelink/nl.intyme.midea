@@ -9,12 +9,12 @@
       "ipAdressLabel": "IP Adres"
     },
     "login_credentials": {
-      "title": "Meld u aan met uw MSMartHome inloggegevens",
-      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw MSmartHome-account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen.",
+      "title": "Meld u aan met uw NetHome Plus inloggegevens",
+      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw NetHome Plus account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen. Heeft u geen NetHome Plus account, dan kunt u de velden leeg laten en zal de default gebruiker en wachtwoord worden gebruikt.",
       "usernameLabel": "E-mail Address",
-      "usernamePlaceholder": "john@doe.com",
+      "usernamePlaceholder": "nethome+us@mailinator.com",
       "passwordLabel": "Wachtwoord",
-      "passwordPlaceholder": "Wachtwoord"
+      "passwordPlaceholder": "password1"
     }
   },
   "repair": {
@@ -28,11 +28,11 @@
     },
     "login_credentials": {
       "title": "Meld u aan met uw MSMartHome inloggegevens",
-      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw MSmartHome-account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen.",
+      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw NetHome Plus account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen. Heeft u geen NetHome Plus account, dan kunt u de velden leeg laten en zal de default gebruiker en wachtwoord worden gebruikt.",
       "usernameLabel": "E-mail Adres",
-      "usernamePlaceholder": "john@doe.com",
+      "usernamePlaceholder": "nethome+us@mailinator.com",
       "passwordLabel": "Wachtwoord",
-      "passwordPlaceholder": "Wachtwoord"
+      "passwordPlaceholder": "password1"
     }
   }
 }
