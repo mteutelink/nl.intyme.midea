@@ -40,5 +40,8 @@
   },
   "1.0.13": {
     "en": "Logging in into the cloud is not necessary anymore if token and key are known. It remains possible by leaving the field token and key and empty and press continue to enter the login screen. this should not only speed up the inner working, but hopefully gets rid of the timeout during pairing."
+  },
+  "1.0.14": {
+    "en": "Because of the shutdown of MSmartHome's token API service, NetHome Plus is used for token and key retrievakl. A NetHome PLus account is not specifically necessary; it is possibkle to use a default account and password instead. These are pre filled in."
   }
 }

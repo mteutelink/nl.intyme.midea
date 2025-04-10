@@ -10,11 +10,11 @@
 	  },
 	  "login_credentials": {
 		"title": "Log in with your credentials",
-		"message": "Please enter the username (email address) and password of your MSmartHome account to log in to the cloud and retrieve the token and key automatically.",
+		"message": "Please enter the username (email address) and password of your NetHome Plus account to log in to the cloud and retrieve the token and key automatically. If you do not have a NetHome Plus account, you can leave the fields empty and the default user and password will be used.",
 		"usernameLabel": "E-mail Address",
-		"usernamePlaceholder": "john@doe.com",
+		"usernamePlaceholder": "nethome+us@mailinator.com",
 		"passwordLabel": "Password",
-		"passwordPlaceholder": "Password"
+		"passwordPlaceholder": "password1"
 	  }
 	},
 	"repair": {
@@ -28,11 +28,11 @@
 	  },
 	  "login_credentials": {
 		"title": "Log in with your credentials",
-		"message": "Please enter the username (email address) and password of your MSmartHome account to log in to the cloud and retrieve the token and key automatically.",
+		"message": "Please enter the username (email address) and password of your NetHome Plus account to log in to the cloud and retrieve the token and key automatically. If you do not have a NetHome Plus account, you can leave the fields empty and the default user and password will be used.",
 		"usernameLabel": "E-mail Address",
-		"usernamePlaceholder": "john@doe.com",
+		"usernamePlaceholder": "nethome+us@mailinator.com",
 		"passwordLabel": "Password",
-		"passwordPlaceholder": "Password"
+		"passwordPlaceholder": "password1"
 	  }
 	}
   }
