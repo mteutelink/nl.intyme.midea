@@ -11,7 +11,7 @@ export class MideaDevice extends Homey.Device {
    * onInit is called when the device is initialized.
    */
   async onInit() {
-    this.log('Midea AC [' + this.getName() + '] initialized');
+    this.log('Midea AC [' + this.getName() + '] initializing ...');
 
     try {
       const deviceContext: MDeviceContext = new MDeviceContext();
@@ -43,10 +43,12 @@ export class MideaDevice extends Homey.Device {
 
       // INITIALIZE POLLING
       const settings = this.getSettings();
-      this._initializePolling(settings.polling_interval);
+      await this._initializePolling(settings.polling_interval);
+      this.setAvailable();       
+      this.log('Midea AC [' + this.getName() + '] initialized successfully'); 
     } catch (err) {
       this.error(err);
-      throw new Error("Cannot initialize device");
+      throw new Error("Cannot initialize device[" + this.getName() + "]");
     }
   }
 
@@ -55,8 +57,13 @@ export class MideaDevice extends Homey.Device {
     if (this._intervalId) this.homey.clearInterval(this._intervalId);
 
     // UPDATE STATE ONCE, NEXT TIME IS AFTER POLLINGINTERVAL
-    const state: DeviceState = await new GetStateCommand(this._device).execute();
-    this._updateState(state);
+    try {
+      const state: DeviceState = await new GetStateCommand(this._device).execute();
+      this._updateState(state);
+    } catch (err) {
+      this.error(err);
+      throw new Error("Cannot initially update state of device[" + this.getName() + "]");
+    }       
 
     // SET POLLER
     this._intervalId = this.homey.setInterval(async () => {
@@ -66,6 +73,7 @@ export class MideaDevice extends Homey.Device {
           this._updateState(state);
         } catch (err) {
           this.error(err);
+          throw new Error("Cannot update state of device[" + this.getName() + "]");
         }
       }
     }, pollingInterval * 1000);
@@ -262,6 +270,7 @@ export class MideaDevice extends Homey.Device {
       this._updateState(state);
     } catch(err) {
       this.error(err);
+      throw new Error("Error during adjustment of settings from device [" + this.getName() + "]"); 
     } finally {
       this._updatingState = false;
     }
