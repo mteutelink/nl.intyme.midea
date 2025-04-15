@@ -73,7 +73,7 @@ export class MideaDevice extends Homey.Device {
           this._updateState(state);
         } catch (err) {
           this.error(err);
-          throw new Error("Cannot update state of device[" + this.getName() + "]");
+          //throw new Error("Cannot update state of device[" + this.getName() + "]");
         }
       }
     }, pollingInterval * 1000);
