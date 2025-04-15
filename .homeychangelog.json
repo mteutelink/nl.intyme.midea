@@ -46,5 +46,8 @@
   },
   "1.0.15": {
     "en": "Better error handling; offline devices now show unavailable"
+  },
+  "1.0.16": {
+    "en": "No crash when timeout occurs during status update."
   }
 }
