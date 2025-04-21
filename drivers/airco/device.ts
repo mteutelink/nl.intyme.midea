@@ -6,12 +6,15 @@ export class MideaDevice extends Homey.Device {
   public _device: MDevice;
   private _intervalId: any;
   private _updatingState: boolean = false;
-
+  private _maximumFailureCount:number = 5;
+  private _failureCount: number = 0;
+  
   /**
    * onInit is called when the device is initialized.
    */
   async onInit() {
     this.log('Midea AC [' + this.getName() + '] initializing ...');
+    this._failureCount = 0;
 
     try {
       const deviceContext: MDeviceContext = new MDeviceContext();
@@ -41,44 +44,71 @@ export class MideaDevice extends Homey.Device {
       this.registerCapabilityListener("thermostat_eco", async (value, opts) => { return this.onCapability("thermostat_eco", value, opts); });
       this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
 
+      // INITIALLY UPDATE STATE AND SET DEVICE TO AVAILABLE
+      await this._refreshState();
+      this.setAvailable();       
+
       // INITIALIZE POLLING
       const settings = this.getSettings();
-      await this._initializePolling(settings.polling_interval);
-      this.setAvailable();       
+      this._maximumFailureCount = +settings.max_number_of_errors_before_device_unavailable;
+      this._initializePolling(settings.polling_interval);
+
       this.log('Midea AC [' + this.getName() + '] initialized successfully'); 
     } catch (err) {
-      this.error(err);
-      throw new Error("Cannot initialize device[" + this.getName() + "]");
+      this.error("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+      this.setUnavailable("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
     }
   }
 
-  private async _initializePolling(pollingInterval: number) {
+  private _initializePolling(pollingInterval: number) {
     // CLEAR POLLING
     if (this._intervalId) this.homey.clearInterval(this._intervalId);
 
-    // UPDATE STATE ONCE, NEXT TIME IS AFTER POLLINGINTERVAL
-    try {
-      const state: DeviceState = await new GetStateCommand(this._device).execute();
-      this._updateState(state);
-    } catch (err) {
-      this.error(err);
-      throw new Error("Cannot initially update state of device[" + this.getName() + "]");
-    }       
-
     // SET POLLER
     this._intervalId = this.homey.setInterval(async () => {
-      if (!this._updatingState) {
-        try {
-          const state: DeviceState = await new GetStateCommand(this._device).execute();
-          this._updateState(state);
-        } catch (err) {
-          this.error(err);
-          //throw new Error("Cannot update state of device[" + this.getName() + "]");
-        }
+      try {
+        await this._refreshState();
+      } catch (err) {
+        this.homey.clearInterval(this._intervalId);
+        this.error("Error during polling: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+        this.setUnavailable("Device [" + this.getName() + "] is unavailable; failure count: " + this._failureCount);
       }
     }, pollingInterval * 1000);
   }
 
+  /**
+   * _refreshState is called when the device state has to be updated.
+   */
+  private async _refreshState() {
+    if (this._updatingState) {
+      this.log("Skipping state refresh because another update is in progress");
+      return;
+    }
+
+    try {
+      // EXECUTE THE GETSTATECOMMAND TO RETREIVE THE STATE AND REFRESH HOMEY'S DEVICE STATE
+      const state: DeviceState = await new GetStateCommand(this._device).execute();
+      this._updateState(state);
+
+      // AT THS STAGE REFRESHING HAS BEEN SUCCESFUL, WHICH RESETS THE FAILURE COUNT
+      this._failureCount = 0;
+    } catch (err) {
+      // AN ERROR HAS OCCURED; INCREASE FAILURE COUNT AND CHECK IF THE MAXIMUM NUMBER OF ERRORS HAS BEEN REACHED
+      // IF SO, STOP POLLING AND SET DEVICE UNAVAILABLE ELSE, LOG THE ERROR AND RETRY
+      this._failureCount++;   
+      this.error("Error during polling of device [" + this.getName() + "]; failure count = " + this._failureCount + " : " + (err instanceof Error ? err.message : JSON.stringify(err)));
+      if (this._failureCount < this._maximumFailureCount) {
+        this.log("Retrying");
+      } else { 
+        throw new Error("Device [" + this.getName() + "] is failing multiple times; failure count: " + this._failureCount);
+      }
+    }
+  }
+
+  /**
+   * _updateState is called when the device state has been retreived ia the local API and the Homey's device state needs to be updated.
+   * @param {DeviceState} state The new state
+   */
   private _updateState(state: DeviceState) {
     this.log("state = " + JSON.stringify(state) + ")");
     this.setCapabilityValue("onoff", state.powerOn);
@@ -100,7 +130,13 @@ export class MideaDevice extends Homey.Device {
       this.setCapabilityValue("target_temperature", state.indoorTemperature);
     }
     this.setCapabilityValue("measure_temperature", state.indoorTemperature);
-    this.setCapabilityValue("measure_temperature.outside", state.outdoorTemperature);
+
+    if (state.outdoorTemperature != null && state.outdoorTemperature < 60) {
+      this.setCapabilityValue("measure_temperature.outside", state.outdoorTemperature);
+    } else {
+      this.log("Ignoring invalid outdoor temperature:", state.outdoorTemperature);
+    }
+
     switch (state.fanSpeed) {
       case FAN_SPEED.AUTO: this.setCapabilityValue("thermostat_fan_speed", "auto"); break;
       case FAN_SPEED.FIXED: this.setCapabilityValue("thermostat_fan_speed", "auto"); break;
@@ -150,6 +186,10 @@ export class MideaDevice extends Homey.Device {
     }
     if (changedKeys.includes("debug_level")) {
       _LOGGER.level = newSettings.debug_level.toString();
+    }
+    if (changedKeys.includes("max_number_of_errors_before_device_unavailable")) {
+      this._maximumFailureCount = +newSettings.max_number_of_errors_before_device_unavailable;
+      this.onInit();
     }
   }
 
@@ -209,8 +249,6 @@ export class MideaDevice extends Homey.Device {
             /* ECO mode disables boost and freeze protection */
             this.setCapabilityValue("thermostat_boost", (state.turboMode = false));
             this.setCapabilityValue("thermostat_freeze_protection", (state.freezeProtectionMode = false));
-
-            state = await new SetStateCommand(this._device, state).execute();
           }
           state.ecoMode = value; 
           break; 
@@ -223,7 +261,6 @@ export class MideaDevice extends Homey.Device {
             /* freeze protection mode disables boost and ECO */
             this.setCapabilityValue("thermostat_eco", (state.ecoMode = false));
             this.setCapabilityValue("thermostat_boost", (state.turboMode = false));
-            state = await new SetStateCommand(this._device, state).execute();
           }
           state.freezeProtectionMode = value; 
           break; 
@@ -270,6 +307,7 @@ export class MideaDevice extends Homey.Device {
       this._updateState(state);
     } catch(err) {
       this.error(err);
+      await this._refreshState(); // Revert UI to correct state
       throw new Error("Error during adjustment of settings from device [" + this.getName() + "]"); 
     } finally {
       this._updatingState = false;

@@ -49,5 +49,11 @@
   },
   "1.0.16": {
     "en": "No crash when timeout occurs during status update."
+  },
+  "1.0.17": {
+    "en": "Added maximum number of errors occured before device is set to offline. This is set to 5 by default. This can be changed in the settings of the device."
+  },
+  "1.0.18": {
+    "en": "Device becomes unavailble instead of crashing when errors occur multiple times"
   }
 }
