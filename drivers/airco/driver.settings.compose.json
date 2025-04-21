@@ -65,5 +65,16 @@
 				}
 			}
 		]
+	},
+	{
+		"id": "max_number_of_errors_before_device_unavailable",
+		"type": "number",
+		"label": {
+		  "en": "Maximum number of errors before device becomes unavailable.",
+		  "nl": "Maximale aantal fouten voordat het apparaat onbeschikbaar wordt."
+		},
+		"value": 5,
+		"min": 0,
+		"max": 20
 	}
 ]
