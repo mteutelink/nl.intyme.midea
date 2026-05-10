@@ -1,0 +1,571 @@
+<html>
+
+<body>
+	<script type="application/javascript">
+		let devicesByKey = {};
+		let failedDevicesByKey = {};
+		let preparedDevices = [];
+		let searchGeneration = 0;
+
+		$(document).ready(function() {
+			const navBarFromDiscovery = document.getElementById("hy-nav");
+			if (navBarFromDiscovery) {
+				navBarFromDiscovery.remove();
+			}
+
+			Homey.on('deviceFound', function(payload) {
+				if (!isCurrentPayload(payload)) {
+					return;
+				}
+
+				addDevice(payload.device);
+			});
+
+			Homey.on('deviceCandidateFailed', function(payload) {
+				if (!isCurrentPayload(payload)) {
+					return;
+				}
+
+				addFailedDevice(payload.device);
+			});
+
+			Homey.on('discoveryDone', function(progress) {
+				if (!isCurrentPayload(progress)) {
+					return;
+				}
+
+				updateDiscoveryStatus(progress, true);
+			});
+
+			Homey.on('discoveryError', function(payload) {
+				if (!isCurrentPayload(payload)) {
+					return;
+				}
+
+				Homey.error(payload.error || Homey.__("pair.discovery.error"));
+				setStatus(Homey.__("pair.discovery.error"));
+			});
+
+			Homey.on('discoveryProgress', function(progress) {
+				if (!isCurrentPayload(progress)) {
+					return;
+				}
+
+				updateDiscoveryStatus(progress, false);
+			});
+
+			startDiscovery();
+		});
+
+		function startDiscovery(target) {
+			searchGeneration++;
+			const generation = searchGeneration;
+
+			resetDiscoveryState();
+			setStatus(Homey.__("pair.discovery.searching"));
+			Homey.emit('startDiscovery', { target: target || "", generation: generation }, function(error, result) {
+				if (generation !== searchGeneration) {
+					return;
+				}
+
+				if (error) {
+					Homey.error(error);
+					setStatus(Homey.__("pair.discovery.error"));
+				} else if (!result || !result.started) {
+					Homey.error(result && result.error ? result.error : Homey.__("pair.discovery.error"));
+					setStatus(Homey.__("pair.discovery.error"));
+				}
+			});
+		}
+
+		function searchTarget(event) {
+			event.preventDefault();
+
+			const target = document.getElementById("target").value.trim();
+			if (!target) {
+				Homey.error(Homey.__("pair.discovery.targetRequired"));
+				return;
+			}
+
+			startDiscovery(target);
+		}
+
+		function resetDiscoveryState() {
+			devicesByKey = {};
+			failedDevicesByKey = {};
+			preparedDevices = [];
+			renderDevices();
+		}
+
+		function isCurrentPayload(payload) {
+			return payload && payload.generation === searchGeneration;
+		}
+
+		function getDeviceKey(device) {
+			return device.data.id + ":" + device.store.host;
+		}
+
+		function addDevice(device) {
+			const key = getDeviceKey(device);
+			if (devicesByKey[key]) {
+				return;
+			}
+
+			devicesByKey[key] = device;
+			delete failedDevicesByKey[key];
+			Object.keys(failedDevicesByKey).forEach(function(failedKey) {
+				if (failedDevicesByKey[failedKey].data.id === device.data.id) {
+					delete failedDevicesByKey[failedKey];
+				}
+			});
+			renderDevices();
+		}
+
+		function addFailedDevice(device) {
+			const key = getDeviceKey(device);
+			if (devicesByKey[key] || failedDevicesByKey[key]) {
+				return;
+			}
+
+			failedDevicesByKey[key] = device;
+			renderDevices();
+		}
+
+		function isAlreadyPaired(device) {
+			return device && device.store && device.store.authError === "Device is already paired";
+		}
+
+		function getFailedDeviceReason(device) {
+			return isAlreadyPaired(device)
+				? Homey.__("pair.discovery.alreadyPaired")
+				: Homey.__("pair.discovery.needsAuth");
+		}
+
+		function renderDevices() {
+			const list = document.getElementById("devices");
+			const empty = document.getElementById("empty");
+			const devices = Object.values(devicesByKey);
+			const failedDevices = Object.values(failedDevicesByKey);
+
+			list.innerHTML = "";
+			empty.style.display = devices.length || failedDevices.length ? "none" : "block";
+
+			devices.forEach(function(device) {
+				const key = getDeviceKey(device);
+				const row = document.createElement("label");
+				row.className = "midea-device-row";
+
+				const checkbox = document.createElement("input");
+				checkbox.type = "checkbox";
+				checkbox.value = key;
+				checkbox.checked = true;
+				checkbox.addEventListener("change", updateSelectionState);
+
+				const iconWrap = document.createElement("span");
+				iconWrap.className = "midea-device-icon";
+
+				const icon = document.createElement("img");
+				icon.src = "../assets/icon.svg";
+				icon.alt = "";
+				icon.setAttribute("aria-hidden", "true");
+				iconWrap.appendChild(icon);
+
+				const check = document.createElement("span");
+				check.className = "midea-check";
+
+				const text = document.createElement("span");
+				text.className = "midea-device-copy";
+
+					const title = document.createElement("strong");
+					title.className = "midea-device-title";
+					title.textContent = device.name || Homey.__("pair.discovery.deviceTitle");
+
+				const details = document.createElement("small");
+				details.className = "midea-device-details";
+				details.textContent = Homey.__("pair.discovery.ipAddress") + " " + device.store.host;
+
+				text.appendChild(title);
+				text.appendChild(details);
+
+				row.appendChild(checkbox);
+				row.appendChild(iconWrap);
+				row.appendChild(text);
+				row.appendChild(check);
+				list.appendChild(row);
+			});
+
+			failedDevices.forEach(function(device) {
+				const row = document.createElement("div");
+				row.className = "midea-device-row midea-device-row-failed";
+
+				const iconWrap = document.createElement("span");
+				iconWrap.className = "midea-device-icon";
+
+				const icon = document.createElement("img");
+				icon.src = "../assets/icon.svg";
+				icon.alt = "";
+				icon.setAttribute("aria-hidden", "true");
+				iconWrap.appendChild(icon);
+
+				const text = document.createElement("span");
+				text.className = "midea-device-copy";
+
+				const title = document.createElement("strong");
+				title.className = "midea-device-title";
+				title.textContent = device.name || Homey.__("pair.discovery.deviceTitle");
+
+				const details = document.createElement("small");
+				details.className = "midea-device-details";
+				details.textContent = Homey.__("pair.discovery.ipAddress") + " " + device.store.host + " - " + getFailedDeviceReason(device);
+
+				text.appendChild(title);
+				text.appendChild(details);
+
+				row.appendChild(iconWrap);
+				row.appendChild(text);
+
+				if (!isAlreadyPaired(device)) {
+					const action = document.createElement("button");
+					action.type = "button";
+					action.className = "midea-device-action";
+					action.textContent = Homey.__("pair.discovery.useCredentialsOrToken");
+					action.addEventListener("click", function(event) {
+						event.preventDefault();
+						preparedDevices = getSelectedDevices();
+						showCredentialsFallback([device]);
+					});
+
+					row.appendChild(action);
+				}
+				list.appendChild(row);
+			});
+
+			updateSelectionState();
+		}
+
+		function updateSelectionState() {
+			const selectedCount = getSelectedDevices().length;
+			const addButton = document.getElementById("add-selected");
+			addButton.disabled = selectedCount === 0;
+			addButton.textContent = selectedCount
+				? Homey.__("pair.discovery.addSelected") + " (" + selectedCount + ")"
+				: Homey.__("pair.discovery.addSelected");
+
+			Array.from(document.querySelectorAll(".midea-device-row")).forEach(function(row) {
+				const checkbox = row.querySelector("input");
+				row.classList.toggle("is-selected", checkbox && checkbox.checked);
+			});
+		}
+
+		function getSelectedDevices() {
+			return Array.from(document.querySelectorAll("#devices input:checked"))
+				.map(function(input) {
+					return devicesByKey[input.value];
+				})
+				.filter(Boolean);
+		}
+
+		function addSelected(event) {
+			event.preventDefault();
+
+			const selectedDevices = getSelectedDevices();
+			if (!selectedDevices.length) {
+				Homey.error(Homey.__("pair.discovery.selectDevice"));
+				return;
+			}
+
+			Homey.showLoadingOverlay();
+			Homey.emit('stopDiscovery', {}, function() {
+				Homey.setViewStoreValue("add_devices", "devices", selectedDevices).then(function() {
+					Homey.setViewStoreValue("add_devices", "preparedDevices", []).then(function() {
+						Homey.hideLoadingOverlay();
+						Homey.showView("add_devices");
+					});
+				});
+			});
+		}
+
+		function prepareDevices(devices, username, password) {
+			if (!devices || !devices.length) {
+				Homey.error(Homey.__("pair.discovery.selectDevice"));
+				return;
+			}
+
+			setAuthBusy(true);
+			Homey.emit('prepareDevices', {
+					devices: devices,
+					username: username,
+					password: password
+				},
+				function(error, result) {
+					Homey.hideLoadingOverlay();
+					setAuthBusy(false);
+					if (error) {
+						Homey.error(error);
+						showCredentialsFallback(devices);
+						return;
+					}
+
+					const addedDevices = result && result.devices ? result.devices : [];
+					const failedDevices = result && result.failed ? result.failed : [];
+
+					if (addedDevices.length) {
+						preparedDevices = preparedDevices.concat(addedDevices);
+					}
+
+					if (!failedDevices.length) {
+						Homey.setViewStoreValue("add_devices", "devices", preparedDevices).then(function() {
+							Homey.setViewStoreValue("add_devices", "preparedDevices", []).then(function() {
+								Homey.showView("add_devices");
+							});
+						});
+						return;
+					}
+
+					showCredentialsFallback(failedDevices);
+				}
+			);
+		}
+
+		function showCredentialsFallback(devices) {
+			setStatus(Homey.__("pair.discovery.authFailed"));
+			Homey.setViewStoreValue("add_devices", "preparedDevices", preparedDevices).then(function() {
+				Homey.setViewStoreValue("add_devices", "devices", devices).then(function() {
+					Homey.showView("token_and_key");
+				});
+			});
+		}
+
+		function setAuthBusy(isBusy) {
+			const addButton = document.getElementById("add-selected");
+
+			if (isBusy) {
+				setStatus(Homey.__("pair.discovery.authenticating"));
+			}
+
+			addButton.disabled = isBusy || getSelectedDevices().length === 0;
+		}
+
+		function setStatus(message) {
+			document.getElementById("status").textContent = message;
+		}
+
+		function updateDiscoveryStatus(progress, isDone) {
+			if (!progress) {
+				setStatus(isDone ? Homey.__("pair.discovery.done") : Homey.__("pair.discovery.searching"));
+				return;
+			}
+
+			const parts = [];
+			if (progress.ready) {
+				parts.push(Homey.__("pair.discovery.ready") + " " + progress.ready);
+			}
+			if (progress.pending) {
+				parts.push(Homey.__("pair.discovery.validating") + " " + progress.pending);
+			}
+			if (progress.skipped) {
+				parts.push(Homey.__("pair.discovery.skipped") + " " + progress.skipped);
+			}
+
+			const prefix = isDone ? Homey.__("pair.discovery.done") : Homey.__("pair.discovery.searching");
+			setStatus(parts.length ? prefix + " " + parts.join(", ") : prefix);
+		}
+	</script>
+
+	<style>
+		#discovery {
+			box-sizing: border-box;
+			padding: 0;
+			width: 100%;
+		}
+
+		#status {
+			line-height: 1.35;
+			margin-bottom: 0;
+			margin-top: 6px;
+		}
+
+		.midea-section {
+			margin-top: 18px;
+		}
+
+		.midea-device-list {
+			display: grid;
+			gap: 12px;
+			margin-top: 12px;
+		}
+
+		.midea-device-row {
+			align-items: center;
+			background: #fff;
+			border: 1px solid rgba(0, 0, 0, 0.09);
+			border-radius: 8px;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+			box-sizing: border-box;
+			cursor: pointer;
+			display: grid;
+			gap: 12px;
+			grid-template-columns: 46px minmax(0, 1fr) 22px;
+			min-height: 72px;
+			padding: 12px;
+			position: relative;
+			-webkit-tap-highlight-color: transparent;
+			transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+			user-select: none;
+			width: 100%;
+		}
+
+		.midea-device-row:hover {
+			background: rgba(0, 130, 250, 0.045);
+			border-color: rgba(0, 130, 250, 0.24);
+			box-shadow: 0 2px 7px rgba(0, 0, 0, 0.07);
+		}
+
+		.midea-device-row.is-selected {
+			background: rgba(0, 130, 250, 0.06);
+			border-color: rgba(0, 130, 250, 0.42);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.075);
+		}
+
+		.midea-device-row-failed {
+			cursor: default;
+			grid-template-columns: 46px minmax(0, 1fr) minmax(96px, auto);
+		}
+
+		.midea-device-row:focus-within {
+			border-color: rgba(0, 130, 250, 0.62);
+			box-shadow: 0 0 0 3px rgba(0, 130, 250, 0.14);
+			outline: 0;
+		}
+
+		.midea-device-row input {
+			height: 1px;
+			opacity: 0;
+			position: absolute;
+			width: 1px;
+		}
+
+		.midea-device-icon {
+			align-items: center;
+			background: rgba(0, 130, 250, 0.08);
+			border-radius: 8px;
+			display: flex;
+			height: 46px;
+			justify-content: center;
+			width: 46px;
+		}
+
+		.midea-device-icon img {
+			display: block;
+			height: 26px;
+			opacity: 0.72;
+			width: 26px;
+		}
+
+		.midea-device-row.is-selected .midea-device-icon {
+			background: rgba(0, 130, 250, 0.12);
+		}
+
+		.midea-device-row.is-selected .midea-device-icon img {
+			opacity: 0.86;
+		}
+
+		.midea-check {
+			align-self: center;
+			border: 2px solid rgba(0, 0, 0, 0.26);
+			border-radius: 50%;
+			box-sizing: border-box;
+			display: block;
+			height: 22px;
+			justify-self: end;
+			position: relative;
+			width: 22px;
+		}
+
+		.midea-device-row.is-selected .midea-check {
+			background: #0078ff;
+			border-color: #0078ff;
+		}
+
+		.midea-device-row.is-selected .midea-check::after {
+			border: solid #fff;
+			border-width: 0 2px 2px 0;
+			content: "";
+			height: 8px;
+			left: 50%;
+			position: absolute;
+			top: 46%;
+			transform: translate(-50%, -50%) rotate(45deg);
+			transform-origin: 50% 50%;
+			width: 5px;
+		}
+
+		.midea-device-copy {
+			display: block;
+			min-width: 0;
+			overflow: hidden;
+		}
+
+		.midea-device-title,
+		.midea-device-details {
+			display: block;
+		}
+
+		.midea-device-title {
+			font-weight: 600;
+			line-height: 1.25;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.midea-device-details {
+			color: rgba(0, 0, 0, 0.54);
+			font-size: 12px;
+			line-height: 1.35;
+			overflow: hidden;
+			padding-top: 2px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.midea-device-action {
+			align-self: center;
+			background: transparent;
+			border: 0;
+			color: #0078ff;
+			cursor: pointer;
+			font: inherit;
+			font-size: 12px;
+			font-weight: 600;
+			justify-self: end;
+			padding: 6px 0;
+			text-align: right;
+		}
+
+	</style>
+
+	<div id="discovery">
+		<h1 class="homey-title homey-text-align-center" data-i18n="pair.discovery.title">Find Midea devices</h1>
+		<p id="status" class="homey-subtitle" data-i18n="pair.discovery.searching">Searching for devices...</p>
+
+		<div class="midea-section">
+			<div id="empty" class="homey-text-small" data-i18n="pair.discovery.empty">Validated devices will appear here when ready.</div>
+			<div id="devices" class="midea-device-list"></div>
+		</div>
+
+		<form class="homey-form midea-section" onsubmit="searchTarget(event); return false;">
+			<div class="homey-form-group-large">
+				<label class="homey-form-label" for="target" data-i18n="pair.discovery.targetLabel">Search another network</label>
+				<input class="homey-form-input-large" id="target" name="target" type="text" placeholder="192.0.2.0" value="" />
+			</div>
+			<button type="submit" class="homey-button-secondary-shadow-full" data-i18n="pair.discovery.searchTarget">Search this network</button>
+		</form>
+
+		<form class="homey-form midea-section" onsubmit="addSelected(event); return false;">
+			<button id="add-selected" type="submit" class="homey-button-primary-shadow-full" data-i18n="pair.discovery.addSelected" disabled>Add selected</button>
+		</form>
+	</div>
+</body>
+
+</html>

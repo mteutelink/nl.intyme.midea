@@ -19,9 +19,8 @@
 		function enterTokenAndKey(event) {
 			event.preventDefault();
 
-			Homey.showLoadingOverlay();
-
 			if (document.getElementById("token").value && document.getElementById("key").value) {
+				Homey.showLoadingOverlay();
 				Homey.getViewStoreValue("add_devices", "devices").then(devices => {
 					Homey.emit('enterTokenAndKey', {
 							devices: devices,
@@ -38,8 +37,13 @@
 								document.getElementById("token").value = "";
 								document.getElementById("key").value = "";
 							} else if (device) {
-								Homey.setViewStoreValue("add_devices", "devices", [device]);
-								Homey.showView("add_devices");
+								Homey.getViewStoreValue("add_devices", "preparedDevices").then(preparedDevices => {
+									Homey.setViewStoreValue("add_devices", "devices", (preparedDevices || []).concat([device])).then(function() {
+										Homey.setViewStoreValue("add_devices", "preparedDevices", []).then(function() {
+											Homey.showView("add_devices");
+										});
+									});
+								});
 							}
 							Homey.hideLoadingOverlay();
 						},

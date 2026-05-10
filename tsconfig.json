@@ -5,5 +5,10 @@
     "outDir": ".homeybuild/",
     "strictPropertyInitialization": false,
     "strictNullChecks": false
-  }
+  },
+  "exclude": [
+    "node_modules",
+    ".homeybuild",
+    "scripts/verify-helpers.ts"
+  ]
 }

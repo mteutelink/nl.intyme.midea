@@ -1,9 +1,34 @@
 {
 	"pair": {
 	  "error_adding_device": "Error while adding device",
+	  "discovery": {
+		"title": "Find Midea devices",
+		"searching": "Searching for devices...",
+		"done": "Search complete",
+		"error": "Error while searching for devices",
+      "empty": "Validated devices will appear here when ready.",
+      "deviceTitle": "Air conditioner",
+      "ipAddress": "IP",
+      "targetLabel": "Search another network",
+		"ready": "Ready:",
+		"validating": "Validating:",
+		"skipped": "Skipped:",
+		"searchTarget": "Search this network",
+		"addSelected": "Add selected",
+		"selectDevice": "Select at least one device",
+		"targetRequired": "Enter an IP address in the network to search",
+		"authenticating": "Authenticating selected devices...",
+		"authFailed": "Authentication failed. Continue with your MSmartHome credentials.",
+		"authErrorPrefix": "Last error:",
+		"retryCredentials": "Continue with credentials",
+		"useTokenKey": "Continue with token and key",
+		"needsAuth": "needs credentials or token",
+		"alreadyPaired": "already paired",
+		"useCredentialsOrToken": "Use token or credentials"
+	  },
 	  "token_and_key": {
 		"title": "Enter token and key of the device",
-		"message": "If the token and key of the device are known, values can be entered here. they can be entered manually or automatically retrieved from the cloud in the next screen (leave fields empty and press continue).",
+		"message": "If automatic authentication fails and the token and key of the device are known, values can be entered here.",
 		"tokenLabel": "Token",
 		"keyLabel": "Key",
 		"ipAdressLabel": "IP Address"

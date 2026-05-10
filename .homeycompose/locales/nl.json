@@ -1,9 +1,34 @@
 {
 	"pair": {
 	  "error_adding_device": "Fout bij het toevoegen van een device",
+	  "discovery": {
+		"title": "Midea-apparaten zoeken",
+		"searching": "Apparaten zoeken...",
+		"done": "Zoeken voltooid",
+		"error": "Fout bij het zoeken naar apparaten",
+      "empty": "Gevalideerde apparaten verschijnen hier zodra ze klaar zijn.",
+      "deviceTitle": "Airconditioner",
+      "ipAddress": "IP",
+      "targetLabel": "Zoek een ander netwerk",
+		"ready": "Klaar:",
+		"validating": "Valideren:",
+		"skipped": "Overgeslagen:",
+		"searchTarget": "Zoek dit netwerk",
+		"addSelected": "Geselecteerde toevoegen",
+		"selectDevice": "Selecteer minimaal een apparaat",
+		"targetRequired": "Voer een IP-adres in het netwerk in",
+		"authenticating": "Geselecteerde apparaten authenticeren...",
+		"authFailed": "Authenticatie mislukt. Ga verder met uw MSmartHome-inloggegevens.",
+		"authErrorPrefix": "Laatste fout:",
+		"retryCredentials": "Doorgaan met inloggegevens",
+		"useTokenKey": "Doorgaan met token en key",
+		"needsAuth": "inloggegevens of token nodig",
+		"alreadyPaired": "al gekoppeld",
+		"useCredentialsOrToken": "Gebruik token of inloggegevens"
+	  },
 	  "token_and_key": {
 		"title": "Voer de token en de key van het device in",
-		"message": "Als de token en de key van het apparaat bekend zijn, kunnen hier waarden worden ingevoerd. Deze kunnen handmatig worden ingevoerd of automatisch worden opgehaald uit de cloud in het volgende scherm (velden leeg laten en op Doorgaan drukken).",
+		"message": "Als automatische authenticatie mislukt en de token en key van het apparaat bekend zijn, kunnen deze hier worden ingevoerd.",
 		"tokenLabel": "Token",
 		"keyLabel": "Key",
 		"ipAdressLabel": "IP Adres"

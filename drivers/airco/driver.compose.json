@@ -9,6 +9,7 @@
     "thermostat_mode",
     "target_temperature",
     "measure_temperature",
+    "measure_temperature.inside",
     "measure_temperature.outside",
     "thermostat_boost",
     "thermostat_fan_speed",
@@ -20,9 +21,15 @@
     "target_temperature": {
       "min": 16,
       "max": 30,
-      "step": 1
+      "step": 0.5
     },
     "measure_temperature": {
+      "title": {
+        "en": "Current temperature",
+        "nl": "Huidige temperatuur"
+      }
+    },
+    "measure_temperature.inside": {
       "title": {
         "en": "Inside temperature",
         "nl": "Binnentemperatuur"
@@ -43,13 +50,9 @@
   ],
   "pair": [
     {
-      "id": "list_devices",
-      "template": "list_devices",
-      "options": {
-        "singular": true
-      },
+      "id": "discovery",
       "navigation": {
-        "next": "token_and_key"
+        "next": "add_devices"
       }
     },
     {
