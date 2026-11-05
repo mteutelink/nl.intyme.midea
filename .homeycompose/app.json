@@ -20,7 +20,9 @@
   "category": [
     "climate"
   ],
-  "permissions": [],
+  "permissions": [
+    "homey:wireless:ir"
+  ],
   "images": {
     "small": "/assets/images/app-small.png",
     "large": "/assets/images/app-large.png",
@@ -34,6 +36,9 @@
     "developers": [
       {
         "name": "Marc Teutelink"
+      },
+      {
+        "name": "Dirk Cuypers"
       }
     ],
     "translators": []
