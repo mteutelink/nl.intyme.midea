@@ -9,12 +9,15 @@
       "ipAdressLabel": "IP Address"
     },
     "login_credentials": {
-      "title": "Log in with your credentials",
-      "message": "Please enter the username (email address) and password of your NetHome Plus account to log in to the cloud and retrieve the token and key automatically. If you do not have a NetHome Plus account, you can leave the fields empty and the default user and password will be used.",
+      "title": "Log in with your air conditioner account",
+      "message": "Choose the app where your air conditioner is registered and enter its account credentials. MSmartHome / SmartHome requires your own email address and password. For NetHome Plus, leave both fields empty to use the default account. Control remains local after pairing.",
       "usernameLabel": "E-mail Address",
-      "usernamePlaceholder": "nethome+us@mailinator.com",
+      "usernamePlaceholder": "",
       "passwordLabel": "Password",
-      "passwordPlaceholder": "password1"
+      "passwordPlaceholder": "",
+      "providerLabel": "Account provider",
+      "credentialsRequired": "Enter your email address and password.",
+      "invalidProvider": "Choose NetHome Plus or MSmartHome / SmartHome."
     }
   },
   "repair": {
@@ -27,12 +30,15 @@
       "ipAdressLabel": "IP Address"
     },
     "login_credentials": {
-      "title": "Log in with your credentials",
-      "message": "Please enter the username (email address) and password of your NetHome Plus account to log in to the cloud and retrieve the token and key automatically. If you do not have a NetHome Plus account, you can leave the fields empty and the default user and password will be used.",
+      "title": "Log in with your air conditioner account",
+      "message": "Choose the app where your air conditioner is registered and enter its account credentials. MSmartHome / SmartHome requires your own email address and password. For NetHome Plus, leave both fields empty to use the default account. Control remains local after pairing.",
       "usernameLabel": "E-mail Address",
-      "usernamePlaceholder": "nethome+us@mailinator.com",
+      "usernamePlaceholder": "",
       "passwordLabel": "Password",
-      "passwordPlaceholder": "password1"
+      "passwordPlaceholder": "",
+      "providerLabel": "Account provider",
+      "credentialsRequired": "Enter your email address and password.",
+      "invalidProvider": "Choose NetHome Plus or MSmartHome / SmartHome."
     }
   }
 }

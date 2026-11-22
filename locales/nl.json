@@ -9,12 +9,15 @@
       "ipAdressLabel": "IP Adres"
     },
     "login_credentials": {
-      "title": "Meld u aan met uw NetHome Plus inloggegevens",
-      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw NetHome Plus account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen. Heeft u geen NetHome Plus account, dan kunt u de velden leeg laten en zal de default gebruiker en wachtwoord worden gebruikt.",
+      "title": "Meld u aan met uw airco-account",
+      "message": "Kies de app waarin uw airco is geregistreerd en vul de bijbehorende inloggegevens in. Voor MSmartHome / SmartHome zijn uw eigen e-mailadres en wachtwoord vereist. Bij NetHome Plus kunt u beide velden leeg laten om het standaardaccount te gebruiken. Na het koppelen verloopt de bediening lokaal.",
       "usernameLabel": "E-mail Address",
-      "usernamePlaceholder": "nethome+us@mailinator.com",
+      "usernamePlaceholder": "",
       "passwordLabel": "Wachtwoord",
-      "passwordPlaceholder": "password1"
+      "passwordPlaceholder": "",
+      "providerLabel": "Accountprovider",
+      "credentialsRequired": "Vul uw e-mailadres en wachtwoord in.",
+      "invalidProvider": "Kies NetHome Plus of MSmartHome / SmartHome."
     }
   },
   "repair": {
@@ -27,12 +30,15 @@
       "ipAdressLabel": "IP Adres"
     },
     "login_credentials": {
-      "title": "Meld u aan met uw MSMartHome inloggegevens",
-      "message": "Voer de gebruikersnaam (e-mailadres) en het wachtwoord van uw NetHome Plus account in om in te loggen op de cloud en het token en de sleutel automatisch op te halen. Heeft u geen NetHome Plus account, dan kunt u de velden leeg laten en zal de default gebruiker en wachtwoord worden gebruikt.",
+      "title": "Meld u aan met uw airco-account",
+      "message": "Kies de app waarin uw airco is geregistreerd en vul de bijbehorende inloggegevens in. Voor MSmartHome / SmartHome zijn uw eigen e-mailadres en wachtwoord vereist. Bij NetHome Plus kunt u beide velden leeg laten om het standaardaccount te gebruiken. Na het koppelen verloopt de bediening lokaal.",
       "usernameLabel": "E-mail Adres",
-      "usernamePlaceholder": "nethome+us@mailinator.com",
+      "usernamePlaceholder": "",
       "passwordLabel": "Wachtwoord",
-      "passwordPlaceholder": "password1"
+      "passwordPlaceholder": "",
+      "providerLabel": "Accountprovider",
+      "credentialsRequired": "Vul uw e-mailadres en wachtwoord in.",
+      "invalidProvider": "Kies NetHome Plus of MSmartHome / SmartHome."
     }
   }
 }
