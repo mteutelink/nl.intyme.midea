@@ -19,6 +19,6 @@
   "dependencies": {
     "crypto-js": "^4.2.0",
     "dateformat": "^4.6.3",
-    "midea-msmarthome-ac-euosk105": "git+https://github.com/mteutelink/midea-msmarthome-ac-euosk105.git#27e25b79209793e8949857c200a7a603d9d82ae5"
+    "midea-msmarthome-ac-euosk105": "git+https://github.com/mteutelink/midea-msmarthome-ac-euosk105.git#97de18e94e0f537c24359e4718d5e31a548c0c6b"
   }
 }

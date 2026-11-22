@@ -1,7 +1,7 @@
 # Capability-aware Homey preview
 
 This is the first stage of the proposed fork integration. The branch depends on
-the exact capability-discovery library commit 27e25b79209793e8949857c200a7a603d9d82ae5
+the exact capability-discovery library commit 97de18e94e0f537c24359e4718d5e31a548c0c6b
 through a Git dependency. No npm release is needed for this preview.
 
 ## Behaviour
@@ -39,7 +39,7 @@ network access are needed. No Homey version bump or release publication is inclu
 
 ## Validation
 
-Library build and seven synthetic protocol fixture tests passed. Homey TypeScript
+Library build and thirteen synthetic protocol fixture tests passed. Homey TypeScript
 compilation and five capability/helper tests passed against that built library,
 using the installed SDK dependencies. The tests cover cache retention on network
 failure and preserving existing controls. Registry/Git dependency installation and
