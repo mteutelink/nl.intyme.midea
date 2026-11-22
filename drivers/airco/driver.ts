@@ -1,5 +1,6 @@
+import { supportedHomeyCapabilities, capabilityOptions } from './capabilities';
 import Homey, { Device } from 'homey';
-import { _LOGGER, Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, CloudSecurityContext, CONNECTION_TYPE, LANSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
+import { _LOGGER, Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, GetCapabilitiesCommand, CloudSecurityContext, CONNECTION_TYPE, LANSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, SWING_MODE, OPERATIONAL_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
 class MideaDriver extends Homey.Driver {
@@ -136,6 +137,29 @@ class MideaDriver extends Homey.Driver {
     );
   }
 
+  private async prepareCapabilities(device: any, mdevice: MDevice): Promise<void> {
+    device.store.mideaCapabilitiesPolicy = 'reported';
+    try {
+      const caps = await new GetCapabilitiesCommand(mdevice).execute();
+      device.capabilities = supportedHomeyCapabilities(caps);
+      const options = capabilityOptions(caps);
+      device.capabilitiesOptions = Object.fromEntries(
+        Object.entries(options).filter(([id]) => device.capabilities.includes(id))
+      );
+      device.store.mideaCapabilities = caps.toSnapshot();
+    } catch (error) {
+      // A discovery failure must not prevent pairing; initialize with basic controls.
+      device.capabilities = ['onoff', 'thermostat_mode', 'target_temperature', 'measure_temperature', 'measure_temperature.outside'];
+      device.capabilitiesOptions = {
+        thermostat_mode: { values: [
+          { id: 'off', title: { en: 'Off', nl: 'Uit' } },
+          { id: 'fan', title: { en: 'Fan', nl: 'Ventileren' } },
+        ] },
+      };
+      this.log('Capabilities unavailable; optional controls can be added after a successful query');
+    }
+  }
+
   async onPair(session: any) {
     session.setHandler("list_devices", async () => {
       try {
@@ -181,6 +205,8 @@ class MideaDriver extends Homey.Driver {
         device.store.token = data.token;
         device.store.key = data.key;
 
+        await this.prepareCapabilities(device, mdevice);
+        mdevice.close();
         return device;
       } catch (err) {
         this.error(err);
@@ -208,6 +234,8 @@ class MideaDriver extends Homey.Driver {
         device.store.key = lanSecurityContext.key;
         device.store.cloudProvider = data.provider ?? "nethomeplus";
 
+        await this.prepareCapabilities(device, mdevice);
+        mdevice.close();
         return device;
       } catch (err) {
         this.error(err instanceof Error ? err.message : "Cloud login failed");
