@@ -1,5 +1,5 @@
 import Homey, { Device } from 'homey';
-import { _LOGGER, Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, CloudSecurityContext, LANSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
+import { _LOGGER, Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, CloudSecurityContext, CONNECTION_TYPE, LANSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, SWING_MODE, OPERATIONAL_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
 class MideaDriver extends Homey.Driver {
@@ -116,6 +116,26 @@ class MideaDriver extends Homey.Driver {
     });
   }
 
+  private cloudContext(data: any): CloudSecurityContext | null {
+    const provider = data.provider ?? "nethomeplus";
+    if (provider !== "nethomeplus" && provider !== "msmarthome") {
+      throw new Error(this.homey.__("pair.login_credentials.invalidProvider"));
+    }
+    const username = String(data.username ?? "").trim();
+    const password = String(data.password ?? "");
+    if (provider === "nethomeplus" && !username && !password) return null;
+    if (!username || !password) {
+      throw new Error(this.homey.__("pair.login_credentials.credentialsRequired"));
+    }
+    return new CloudSecurityContext(
+      username,
+      password,
+      provider === "msmarthome"
+        ? CONNECTION_TYPE.MSMARTHOME
+        : CONNECTION_TYPE.NETHOMEPLUS
+    );
+  }
+
   async onPair(session: any) {
     session.setHandler("list_devices", async () => {
       try {
@@ -181,15 +201,17 @@ class MideaDriver extends Homey.Driver {
 
         let mdevice: MDevice = new MDevice(deviceContext)
 
-        let cloudSecurityContext: CloudSecurityContext = new CloudSecurityContext(data.username, data.password);
-        let lanSecurityContext: LANSecurityContext  = await MDriver.retrieveTokenAndKeyFromCloud(mdevice, cloudSecurityContext);
+        const cloudSecurityContext = this.cloudContext(data);
+        const lanSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(mdevice, cloudSecurityContext);
+        await mdevice.authenticate(lanSecurityContext);
         device.store.token = lanSecurityContext.token;
         device.store.key = lanSecurityContext.key;
+        device.store.cloudProvider = data.provider ?? "nethomeplus";
 
         return device;
       } catch (err) {
-        this.error(err);
-        return null;
+        this.error(err instanceof Error ? err.message : "Cloud login failed");
+        throw new Error(err instanceof Error ? err.message : "Cloud login failed");
       }
     });
   }
@@ -246,15 +268,17 @@ class MideaDriver extends Homey.Driver {
 
         let mdevice: MDevice = new MDevice(deviceContext)
 
-        let cloudSecurityContext: CloudSecurityContext = new CloudSecurityContext(data.username, data.password);
-        let lanSecurityContext: LANSecurityContext  = await MDriver.retrieveTokenAndKeyFromCloud(mdevice, cloudSecurityContext);
-        device.setStoreValue("token", lanSecurityContext.token);
-        device.setStoreValue("key", lanSecurityContext.key);
+        const cloudSecurityContext = this.cloudContext(data);
+        const lanSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(mdevice, cloudSecurityContext);
+        await mdevice.authenticate(lanSecurityContext);
+        await device.setStoreValue("token", lanSecurityContext.token);
+        await device.setStoreValue("key", lanSecurityContext.key);
+        await device.setStoreValue("cloudProvider", data.provider ?? "nethomeplus");
 
         return device;
       } catch (err) {
-        this.error(err);
-        return null;
+        this.error(err instanceof Error ? err.message : "Cloud login failed");
+        throw new Error(err instanceof Error ? err.message : "Cloud login failed");
       }
     });
   }
