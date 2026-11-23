@@ -84,3 +84,31 @@ test('failed capability refresh keeps cached support and does not remove control
   assert.equal(stored.mideaCapabilities.reported.heatMode, true);
   assert.equal(stored.mideaCapabilities.reported.updownFan, true);
 });
+
+test('unreported temperature and frost fields never reset Homey readings to zero/false', () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const lib = require(process.env.MIDEA_CAPABILITIES_LIBRARY || 'midea-msmarthome-ac-euosk105');
+  const updated = {};
+  class HomeyDevice {
+    log() {} error() {}
+    hasCapability() { return true; }
+    getCapabilityOptions() { return {}; }
+    async setCapabilityValue(id, value) { updated[id] = value; }
+  }
+  const mod = { exports: {} };
+  vm.runInNewContext(fs.readFileSync(require.resolve('../.homeybuild/drivers/airco/device'), 'utf8'), {
+    Error, module: mod, exports: mod.exports,
+    require: name => name === 'homey' ? { Device: HomeyDevice }
+      : name === './capabilities' ? require('../.homeybuild/drivers/airco/capabilities') : lib,
+  });
+  const data = Buffer.alloc(17);
+  data[0] = 0xC0; data[2] = (2 << 5) | 7;
+  data[11] = data[12] = 0xFF;
+  const state = new lib.GetStateResponse(Buffer.concat([Buffer.alloc(10),data,Buffer.alloc(2)]));
+  const device = new mod.exports();
+  device._updateState(state);
+  assert.equal(updated['measure_temperature'], undefined);
+  assert.equal(updated['measure_temperature.outside'], undefined);
+  assert.equal(updated['thermostat_freeze_protection'], undefined);
+  assert.equal(updated['target_temperature'], 23);
+});

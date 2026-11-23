@@ -1,7 +1,7 @@
 # Capability-aware Homey preview
 
 This is the first stage of the proposed fork integration. The branch depends on
-the exact capability-discovery library commit 97de18e94e0f537c24359e4718d5e31a548c0c6b
+the exact capability-discovery library commit 0ed0bc0a4b80655d5251fb8b6e4547159f1b39a6
 through a Git dependency. No npm release is needed for this preview.
 
 ## Behaviour
@@ -20,8 +20,9 @@ through a Git dependency. No npm release is needed for this preview.
 - NetHome Plus and MSmartHome remain available.
 - The intentional token/key clearing after an IP address change is unchanged.
 
-This preview does not enable energy sensors, iECO, ionisation, Outdoor Silent,
-JetCool, Follow Me or Self Clean commands. Those need separate protocol work.
+The library now provides energy sensors and property/state commands for iECO,
+ionisation, Outdoor Silent, JetCool, Follow Me and Self Clean. This Homey preview
+does not yet expose these as new buttons or Flow cards. See the library STATE_ACCESS.md.
 Nor does it add automatic rediscovery or connection recovery.
 
 ## Try it
@@ -39,8 +40,10 @@ network access are needed. No Homey version bump or release publication is inclu
 
 ## Validation
 
-Library build and thirteen synthetic protocol fixture tests passed. Homey TypeScript
-compilation and five capability/helper tests passed against that built library,
+Library build and 25 library protocol/fixture tests passed. Homey TypeScript
+compilation and six capability/helper tests passed against that built library,
 using the installed SDK dependencies. The tests cover cache retention on network
 failure and preserving existing controls. Registry/Git dependency installation and
 a live Homey/AC test could not be performed in this execution environment.
+
+Missing temperature/frost fields are now left unchanged in Homey rather than replaced with legacy defaults. No live Homey/AC writes were performed for these state tests.

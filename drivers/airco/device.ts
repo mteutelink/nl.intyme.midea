@@ -148,7 +148,8 @@ export class MideaDevice extends Homey.Device {
    * @param {DeviceState} state The new state
    */
   private _updateState(state: DeviceState) {
-    this.log("state = " + JSON.stringify(state) + ")");
+    this.log("state = " + JSON.stringify(state.toStateSnapshot()) + ")");
+    const reported = state.toStateSnapshot();
     this._setStateValue("onoff", state.powerOn);
     if (state.powerOn) {
       switch (state.operationalMode) {
@@ -172,12 +173,12 @@ export class MideaDevice extends Homey.Device {
       }
     }
     this._setStateValue("target_temperature", state.targetTemperature);
-    if (state.operationalMode == OPERATIONAL_MODE.FAN) {
+    if (state.operationalMode == OPERATIONAL_MODE.FAN && reported.indoorTemperature !== undefined) {
       this._setStateValue("target_temperature", state.indoorTemperature);
     }
-    this._setStateValue("measure_temperature", state.indoorTemperature);
+    if (reported.indoorTemperature !== undefined) this._setStateValue("measure_temperature", state.indoorTemperature);
 
-    if (state.outdoorTemperature != null && state.outdoorTemperature < 60) {
+    if (reported.outdoorTemperature !== undefined && state.outdoorTemperature < 60) {
       this._setStateValue("measure_temperature.outside", state.outdoorTemperature);
     } else {
       this.log("Ignoring invalid outdoor temperature:", state.outdoorTemperature);
@@ -199,7 +200,7 @@ export class MideaDevice extends Homey.Device {
       case SWING_MODE.HORIZONTAL: this._setStateValue("thermostat_swing_mode", "horizontal"); break;
     }
     this._setStateValue("thermostat_eco", state.ecoMode);
-    this._setStateValue("thermostat_freeze_protection", state.freezeProtectionMode);
+    if (reported.freezeProtectionMode !== undefined) this._setStateValue("thermostat_freeze_protection", state.freezeProtectionMode);
   }
 
   /**
