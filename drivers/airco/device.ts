@@ -1,5 +1,6 @@
+import { supportedHomeyCapabilities, capabilityOptions, assertSupported, temperatureOptions } from './capabilities';
 import Homey from 'homey';
-import { Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, DeviceState, LANSecurityContext, CloudSecurityContext,  SetStateCommand, _LOGGER } from 'midea-msmarthome-ac-euosk105';
+import { Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, GetStateCommand, GetCapabilitiesCommand, DeviceCapabilities, CapabilitySnapshot, DeviceState, LANSecurityContext, CloudSecurityContext,  SetStateCommand, _LOGGER } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, OPERATIONAL_MODE, SWING_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
 export class MideaDevice extends Homey.Device {
@@ -8,45 +9,96 @@ export class MideaDevice extends Homey.Device {
   private _updatingState: boolean = false;
   private _maximumFailureCount:number = 5;
   private _failureCount: number = 0;
+  private _capabilities: DeviceCapabilities | null = null;
   
+  private _addressRecovery?: Promise<boolean>;
+
+  public recoverAddress(candidate?: MDevice): Promise<boolean> {
+    if (!this._addressRecovery) {
+      this._addressRecovery = this._recoverAddress(candidate).finally(() => {
+        this._addressRecovery = undefined;
+      });
+    }
+    return this._addressRecovery;
+  }
+
+  private async _recoverAddress(candidate?: MDevice): Promise<boolean> {
+    const { id } = this.getData();
+    const { host, port, token, key } = this.getStore();
+    if (!token || !key) return false;
+    const found = candidate ?? (await MDriver.listDevices()).find(device => device.deviceContext.id === id);
+    if (!found || found.deviceContext.id !== id) return false;
+    const next = found.deviceContext;
+    if (!candidate && next.host === host && next.port === port) return false;
+
+    const previous = this._device;
+    let adopted = false;
+    try {
+      await found.authenticate(new LANSecurityContext(token, key));
+      const stored = this.getStore();
+      if (this._device !== previous || stored.host !== host || stored.port !== port
+          || stored.token !== token || stored.key !== key) return false;
+      if (next.host !== host) await this.setStoreValue("host", next.host);
+      if (next.port !== port) await this.setStoreValue("port", next.port);
+      previous?.close();
+      this._device = found;
+      adopted = true;
+      return true;
+    } finally {
+      if (!adopted) found.close();
+    }
+  }
+
   /**
    * onInit is called when the device is initialized.
    */
-  async onInit() {
+  async onInit(connectedDevice?: MDevice) {
     this.log('Midea AC [' + this.getName() + '] initializing ...');
     this._failureCount = 0;
+    if (this._intervalId) this.homey.clearInterval(this._intervalId);
+    if (!connectedDevice) this._device?.close();
 
     try {
-      const deviceContext: MDeviceContext = new MDeviceContext();
-      deviceContext.id = this.getData().id;
-      deviceContext.macAddress = this.getData().macAddress;
-      deviceContext.udpId = this.getData().udpId;
-      deviceContext.host = this.getStore().host;
-      deviceContext.port = this.getStore().port;
-      this._device = new MDevice(deviceContext);
+      if (connectedDevice) {
+        this._device = connectedDevice;
+      } else {
+        const deviceContext: MDeviceContext = new MDeviceContext();
+        deviceContext.id = this.getData().id;
+        deviceContext.macAddress = this.getData().macAddress;
+        deviceContext.udpId = this.getData().udpId;
+        deviceContext.host = this.getStore().host;
+        deviceContext.port = this.getStore().port;
+        this._device = new MDevice(deviceContext);
 
-      // RETRIEVE TOKEN AND KEY FROM USERNAME PASSWORD IF NOT ADDED DURING PAIRING
-      if (!this.getStore().token || !this.getStore().key) {
-        let cloudSecurityContext: CloudSecurityContext =  new CloudSecurityContext(this.getStore().username, this.getStore().password);
-        let lanSecurityContext: LANSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(this._device, cloudSecurityContext);
-        this.setStoreValue("token",  lanSecurityContext.token);
-        this.setStoreValue("key",  lanSecurityContext.key);
+        // RETRIEVE TOKEN AND KEY FROM USERNAME PASSWORD IF NOT ADDED DURING PAIRING
+        if (!this.getStore().token || !this.getStore().key) {
+          let cloudSecurityContext: CloudSecurityContext =  new CloudSecurityContext(this.getStore().username, this.getStore().password);
+          let lanSecurityContext: LANSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(this._device, cloudSecurityContext);
+          await this.setStoreValue("token",  lanSecurityContext.token);
+          await this.setStoreValue("key",  lanSecurityContext.key);
+        }
+        try {
+          await this._device.authenticate(new LANSecurityContext(this.getStore().token, this.getStore().key));
+        } catch (error) {
+          if (!await this.recoverAddress()) throw error;
+        }
       }
-      await this._device.authenticate(new LANSecurityContext(this.getStore().token, this.getStore().key));
+
+      await this._loadCapabilities();
 
       // REGISTER CAPABILITY LISTENERS
-      this.registerCapabilityListener("onoff", async (value, opts) => { return this.onCapability("onoff", value, opts); });
-      this.registerCapabilityListener("target_temperature", async (value, opts) => { return this.onCapability("target_temperature", value, opts); });
-      this.registerCapabilityListener("thermostat_mode", async (value, opts) => { return this.onCapability("thermostat_mode", value, opts); });
-      this.registerCapabilityListener("thermostat_boost", async (value, opts) => { return this.onCapability("thermostat_boost", value, opts); });
-      this.registerCapabilityListener("thermostat_fan_speed", async (value, opts) => { return this.onCapability("thermostat_fan_speed", value, opts); });
-      this.registerCapabilityListener("thermostat_swing_mode", async (value, opts) => { return this.onCapability("thermostat_swing_mode", value, opts); });
-      this.registerCapabilityListener("thermostat_eco", async (value, opts) => { return this.onCapability("thermostat_eco", value, opts); });
-      this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
+      if (this.hasCapability("onoff")) this.registerCapabilityListener("onoff", async (value, opts) => { return this.onCapability("onoff", value, opts); });
+      if (this.hasCapability("target_temperature")) this.registerCapabilityListener("target_temperature", async (value, opts) => { return this.onCapability("target_temperature", value, opts); });
+      if (this.hasCapability("thermostat_mode")) this.registerCapabilityListener("thermostat_mode", async (value, opts) => { return this.onCapability("thermostat_mode", value, opts); });
+      if (this.hasCapability("thermostat_boost")) this.registerCapabilityListener("thermostat_boost", async (value, opts) => { return this.onCapability("thermostat_boost", value, opts); });
+      if (this.hasCapability("thermostat_fan_speed")) this.registerCapabilityListener("thermostat_fan_speed", async (value, opts) => { return this.onCapability("thermostat_fan_speed", value, opts); });
+      if (this.hasCapability("thermostat_swing_mode")) this.registerCapabilityListener("thermostat_swing_mode", async (value, opts) => { return this.onCapability("thermostat_swing_mode", value, opts); });
+      if (this.hasCapability("thermostat_eco")) this.registerCapabilityListener("thermostat_eco", async (value, opts) => { return this.onCapability("thermostat_eco", value, opts); });
+      if (this.hasCapability("thermostat_freeze_protection")) this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
 
       // INITIALLY UPDATE STATE AND SET DEVICE TO AVAILABLE
-      await this._refreshState();
-      this.setAvailable();       
+      await this._refreshState(true);
+      await this.setAvailable();
 
       // INITIALIZE POLLING
       const settings = this.getSettings();
@@ -56,8 +108,43 @@ export class MideaDevice extends Homey.Device {
       this.log('Midea AC [' + this.getName() + '] initialized successfully'); 
     } catch (err) {
       this.error("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
-      this.setUnavailable("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+      await this.setUnavailable("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+      if (connectedDevice) throw err;
     }
+  }
+
+  private async _loadCapabilities() {
+    const saved = this.getStoreValue('mideaCapabilities') as CapabilitySnapshot | undefined;
+    if (saved) {
+      try { this._capabilities = DeviceCapabilities.fromSnapshot(saved); }
+      catch (error) { this.log('Ignoring an invalid capability snapshot'); }
+    }
+    try {
+      const current = await new GetCapabilitiesCommand(this._device).execute();
+      this._capabilities = this._capabilities ? this._capabilities.merge(current) : current;
+      await this.setStoreValue('mideaCapabilities', this._capabilities.toSnapshot());
+    } catch (error) {
+      this.log('Capability query failed; keeping previously reported support');
+    }
+    if (!this._capabilities) return;
+    for (const id of supportedHomeyCapabilities(this._capabilities)) {
+      if (!this.hasCapability(id)) await this.addCapability(id);
+    }
+    // Never remove existing capabilities, which may be referenced by Flows.
+    const options = capabilityOptions(this._capabilities,
+      this.getStoreValue('mideaCapabilitiesPolicy') !== 'reported');
+    for (const [id, value] of Object.entries(options)) {
+      if (this.hasCapability(id)) {
+        await this.setCapabilityOptions(id, { ...this.getCapabilityOptions(id), ...value });
+      }
+    }
+  }
+
+  private _setStateValue(id: string, value: any) {
+    if (!this.hasCapability(id)) return;
+    const values = this.getCapabilityOptions(id)?.values;
+    if (Array.isArray(values) && !values.some((option: { id: string }) => option.id === value)) return;
+    this.setCapabilityValue(id, value).catch(error => this.error(error));
   }
 
   private _initializePolling(pollingInterval: number) {
@@ -69,7 +156,6 @@ export class MideaDevice extends Homey.Device {
       try {
         await this._refreshState();
       } catch (err) {
-        this.homey.clearInterval(this._intervalId);
         this.error("Error during polling: " + (err instanceof Error ? err.message : JSON.stringify(err)));
         this.setUnavailable("Device [" + this.getName() + "] is unavailable; failure count: " + this._failureCount);
       }
@@ -79,22 +165,30 @@ export class MideaDevice extends Homey.Device {
   /**
    * _refreshState is called when the device state has to be updated.
    */
-  private async _refreshState() {
+  private async _refreshState(initializing = false) {
     if (this._updatingState) {
       this.log("Skipping state refresh because another update is in progress");
       return;
     }
 
+    this._updatingState = true;
     try {
       // EXECUTE THE GETSTATECOMMAND TO RETREIVE THE STATE AND REFRESH HOMEY'S DEVICE STATE
-      const state: DeviceState = await new GetStateCommand(this._device).execute();
+      let state: DeviceState;
+      try {
+        state = await new GetStateCommand(this._device).execute();
+      } catch (error) {
+        if (!await this.recoverAddress()) throw error;
+        state = await new GetStateCommand(this._device).execute();
+      }
       this._updateState(state);
+      if (this._failureCount >= this._maximumFailureCount) await this.setAvailable();
 
       // AT THS STAGE REFRESHING HAS BEEN SUCCESFUL, WHICH RESETS THE FAILURE COUNT
       this._failureCount = 0;
     } catch (err) {
-      // AN ERROR HAS OCCURED; INCREASE FAILURE COUNT AND CHECK IF THE MAXIMUM NUMBER OF ERRORS HAS BEEN REACHED
-      // IF SO, STOP POLLING AND SET DEVICE UNAVAILABLE ELSE, LOG THE ERROR AND RETRY
+      if (initializing) throw err;
+      // Keep polling so the device can become available again after a network outage.
       this._failureCount++;   
       this.error("Error during polling of device [" + this.getName() + "]; failure count = " + this._failureCount + " : " + (err instanceof Error ? err.message : JSON.stringify(err)));
       if (this._failureCount < this._maximumFailureCount) {
@@ -102,6 +196,8 @@ export class MideaDevice extends Homey.Device {
       } else { 
         throw new Error("Device [" + this.getName() + "] is failing multiple times; failure count: " + this._failureCount);
       }
+    } finally {
+      this._updatingState = false;
     }
   }
 
@@ -110,50 +206,59 @@ export class MideaDevice extends Homey.Device {
    * @param {DeviceState} state The new state
    */
   private _updateState(state: DeviceState) {
-    this.log("state = " + JSON.stringify(state) + ")");
-    this.setCapabilityValue("onoff", state.powerOn);
+    this.log("state = " + JSON.stringify(state.toStateSnapshot()) + ")");
+    const reported = state.toStateSnapshot();
+    this._setStateValue("onoff", state.powerOn);
     if (state.powerOn) {
       switch (state.operationalMode) {
-        case OPERATIONAL_MODE.AUTO: this.setCapabilityValue("thermostat_mode", "auto"); break;
-        case OPERATIONAL_MODE.COOL: this.setCapabilityValue("thermostat_mode", "cool"); break;
-        case OPERATIONAL_MODE.HEAT: this.setCapabilityValue("thermostat_mode", "heat"); break;
-        case OPERATIONAL_MODE.DRY: this.setCapabilityValue("thermostat_mode", "dry"); break;
-        case OPERATIONAL_MODE.FAN: this.setCapabilityValue("thermostat_mode", "fan"); break;
+        case OPERATIONAL_MODE.AUTO: this._setStateValue("thermostat_mode", "auto"); break;
+        case OPERATIONAL_MODE.COOL: this._setStateValue("thermostat_mode", "cool"); break;
+        case OPERATIONAL_MODE.HEAT: this._setStateValue("thermostat_mode", "heat"); break;
+        case OPERATIONAL_MODE.DRY: this._setStateValue("thermostat_mode", "dry"); break;
+        case OPERATIONAL_MODE.FAN: this._setStateValue("thermostat_mode", "fan"); break;
       }
     } else {
-      this.setCapabilityValue("thermostat_mode", "off");
+      this._setStateValue("thermostat_mode", "off");
     }
-    this.setCapabilityValue("thermostat_boost", state.turboMode);
+    this._setStateValue("thermostat_boost", state.turboMode);
 
-    this.setCapabilityValue("target_temperature", state.targetTemperature);
-    if (state.operationalMode == OPERATIONAL_MODE.FAN) {
-      this.setCapabilityValue("target_temperature", state.indoorTemperature);
+    if (this._capabilities) {
+      const options = temperatureOptions(this._capabilities, state.operationalMode);
+      if (Object.keys(options).length) {
+        this.setCapabilityOptions('target_temperature', {
+          ...this.getCapabilityOptions('target_temperature'), ...options,
+        }).catch(error => this.error(error));
+      }
     }
-    this.setCapabilityValue("measure_temperature", state.indoorTemperature);
+    this._setStateValue("target_temperature", state.targetTemperature);
+    if (state.operationalMode == OPERATIONAL_MODE.FAN && reported.indoorTemperature !== undefined) {
+      this._setStateValue("target_temperature", state.indoorTemperature);
+    }
+    if (reported.indoorTemperature !== undefined) this._setStateValue("measure_temperature", state.indoorTemperature);
 
-    if (state.outdoorTemperature != null && state.outdoorTemperature < 60) {
-      this.setCapabilityValue("measure_temperature.outside", state.outdoorTemperature);
+    if (reported.outdoorTemperature !== undefined && state.outdoorTemperature < 60) {
+      this._setStateValue("measure_temperature.outside", state.outdoorTemperature);
     } else {
       this.log("Ignoring invalid outdoor temperature:", state.outdoorTemperature);
     }
 
     switch (state.fanSpeed) {
-      case FAN_SPEED.AUTO: this.setCapabilityValue("thermostat_fan_speed", "auto"); break;
-      case FAN_SPEED.FIXED: this.setCapabilityValue("thermostat_fan_speed", "auto"); break;
-      case FAN_SPEED.SILENT: this.setCapabilityValue("thermostat_fan_speed", "silent"); break;
-      case FAN_SPEED.LOW: this.setCapabilityValue("thermostat_fan_speed", "low"); break;
-      case FAN_SPEED.MEDIUM: this.setCapabilityValue("thermostat_fan_speed", "medium"); break;
-      case FAN_SPEED.HIGH: this.setCapabilityValue("thermostat_fan_speed", "high"); break;
-      case FAN_SPEED.FULL: this.setCapabilityValue("thermostat_fan_speed", "full"); break;
+      case FAN_SPEED.AUTO: this._setStateValue("thermostat_fan_speed", "auto"); break;
+      case FAN_SPEED.FIXED: this._setStateValue("thermostat_fan_speed", "auto"); break;
+      case FAN_SPEED.SILENT: this._setStateValue("thermostat_fan_speed", "silent"); break;
+      case FAN_SPEED.LOW: this._setStateValue("thermostat_fan_speed", "low"); break;
+      case FAN_SPEED.MEDIUM: this._setStateValue("thermostat_fan_speed", "medium"); break;
+      case FAN_SPEED.HIGH: this._setStateValue("thermostat_fan_speed", "high"); break;
+      case FAN_SPEED.FULL: this._setStateValue("thermostat_fan_speed", "full"); break;
     }
     switch (state.swingMode) {
-      case SWING_MODE.OFF: this.setCapabilityValue("thermostat_swing_mode", "off"); break;
-      case SWING_MODE.BOTH: this.setCapabilityValue("thermostat_swing_mode", "both"); break;
-      case SWING_MODE.VERTICAL: this.setCapabilityValue("thermostat_swing_mode", "vertical"); break;
-      case SWING_MODE.HORIZONTAL: this.setCapabilityValue("thermostat_swing_mode", "horizontal"); break;
+      case SWING_MODE.OFF: this._setStateValue("thermostat_swing_mode", "off"); break;
+      case SWING_MODE.BOTH: this._setStateValue("thermostat_swing_mode", "both"); break;
+      case SWING_MODE.VERTICAL: this._setStateValue("thermostat_swing_mode", "vertical"); break;
+      case SWING_MODE.HORIZONTAL: this._setStateValue("thermostat_swing_mode", "horizontal"); break;
     }
-    this.setCapabilityValue("thermostat_eco", state.ecoMode);
-    this.setCapabilityValue("thermostat_freeze_protection", state.freezeProtectionMode);
+    this._setStateValue("thermostat_eco", state.ecoMode);
+    if (reported.freezeProtectionMode !== undefined) this._setStateValue("thermostat_freeze_protection", state.freezeProtectionMode);
   }
 
   /**
@@ -207,6 +312,7 @@ export class MideaDevice extends Homey.Device {
    */
   async onDeleted() {
     this.homey.clearInterval(this._intervalId);
+    this._device?.close();
     this.log('Midea AC [' + this.getName() + '] has been deleted');
   }
 
@@ -216,6 +322,9 @@ export class MideaDevice extends Homey.Device {
       this._updatingState = true;
       let state: DeviceState = await new GetStateCommand(this._device).execute();
 
+      if (this._capabilities) {
+        assertSupported(this._capabilities, capability, value, state.operationalMode);
+      }
       switch (capability) {
         case "onoff": state.powerOn = value; break;
         case "target_temperature": state.targetTemperature = value; break;
