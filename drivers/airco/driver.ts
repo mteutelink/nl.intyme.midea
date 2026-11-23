@@ -1,5 +1,6 @@
 import { supportedHomeyCapabilities, capabilityOptions } from './capabilities';
-import Homey, { Device } from 'homey';
+import Homey from 'homey';
+import type { MideaDevice } from './device';
 import { _LOGGER, Driver as MDriver, Device as MDevice, DeviceContext as MDeviceContext, GetCapabilitiesCommand, CloudSecurityContext, CONNECTION_TYPE, LANSecurityContext, DeviceState, GetStateCommand } from 'midea-msmarthome-ac-euosk105';
 import { FAN_SPEED, SWING_MODE, OPERATIONAL_MODE } from 'midea-msmarthome-ac-euosk105/dist/DeviceState';
 
@@ -244,70 +245,56 @@ class MideaDriver extends Homey.Driver {
     });
   }
 
-  async onRepair(session: any, device: Device) {
-    session.setHandler("reinitializeDevice", async (data: any) => {
-      const mdevices = await MDriver.listDevices();
-			const mdevice = mdevices.find((mdevice) => device.getData().id === mdevice.deviceContext.id);
-      if(mdevice) {
-        if (mdevice.deviceContext.host !== device.getStore().host) {
-          // IP ADDRESS OF THE DEVICE HAS CHANGED ==> RESET HOST and CLEAR TOKEN AND KEY
-          device.setStoreValue("host", mdevice.deviceContext.host);
-          device.setStoreValue("port", mdevice.deviceContext.port);
-          device.setStoreValue("token", null);
-          device.setStoreValue("key", null);
+  async onRepair(session: any, device: MideaDevice) {
+    let discovered: MDevice | undefined;
+    session.setHandler("reinitializeDevice", async () => {
+      discovered = (await MDriver.listDevices()).find(candidate => candidate.deviceContext.id === device.getData().id);
+      if (!discovered) return null;
+      const { token, key } = device.getStore();
+      if (token && key) {
+        try {
+          if (await device.recoverAddress(discovered)) {
+            await device.onInit(device._device);
+            await session.done();
+            return { repaired: true };
+          }
+        } catch (error) {
+          if (!(error instanceof Error) || error.message !== 'Authentication failed') throw error;
+          return { host: discovered.deviceContext.host, credentialsRejected: true };
         }
-        return device.getStore();
       }
-      return null;
-    })
+      return { host: discovered.deviceContext.host, token, key };
+    });
+
+    const completeRepair = async (security: LANSecurityContext, provider?: string) => {
+      if (!discovered) throw new Error("Air conditioner not found on the local network");
+      const candidate = new MDevice(discovered.deviceContext);
+      try {
+        await candidate.authenticate(security);
+        await device.setStoreValue("host", candidate.deviceContext.host);
+        await device.setStoreValue("port", candidate.deviceContext.port);
+        await device.setStoreValue("token", security.token);
+        await device.setStoreValue("key", security.key);
+        if (provider) await device.setStoreValue("cloudProvider", provider);
+        device._device?.close();
+        await device.onInit(candidate);
+      } catch (error) {
+        candidate.close();
+        throw error;
+      }
+      await session.done();
+      return true;
+    };
 
     session.setHandler("enterTokenAndKey", async (data: any) => {
-      try {
-        let deviceContext: MDeviceContext = new MDeviceContext();
-        deviceContext.id = device.getData().id;
-        deviceContext.macAddress = device.getData().macAddress;
-        deviceContext.udpId = device.getData().udpId;
-        deviceContext.host = device.getStore().host;
-        deviceContext.port = device.getStore().port;
-
-        let mdevice: MDevice = new MDevice(deviceContext)
-
-        await mdevice.authenticate(new LANSecurityContext(data.token, data.key));
-        device.setStoreValue("token", data.token);
-        device.setStoreValue("key", data.key);
-
-        await device.onInit();
-        await session.done();
-        return device;
-      } catch (err) {
-        this.error(err);
-        return null;
-      }
+      return completeRepair(new LANSecurityContext(data.token, data.key));
     });
 
     session.setHandler("login", async (data: any) => {
-      try {
-        let deviceContext: MDeviceContext = new MDeviceContext();
-        deviceContext.id = device.getData().id;
-        deviceContext.macAddress = device.getData().macAddress;
-        deviceContext.udpId = device.getData().udpId;
-        deviceContext.host = device.getStore().host;
-        deviceContext.port = device.getStore().port;
-
-        let mdevice: MDevice = new MDevice(deviceContext)
-
-        const cloudSecurityContext = this.cloudContext(data);
-        const lanSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(mdevice, cloudSecurityContext);
-        await mdevice.authenticate(lanSecurityContext);
-        await device.setStoreValue("token", lanSecurityContext.token);
-        await device.setStoreValue("key", lanSecurityContext.key);
-        await device.setStoreValue("cloudProvider", data.provider ?? "nethomeplus");
-
-        return device;
-      } catch (err) {
-        this.error(err instanceof Error ? err.message : "Cloud login failed");
-        throw new Error(err instanceof Error ? err.message : "Cloud login failed");
-      }
+      if (!discovered) throw new Error("Air conditioner not found on the local network");
+      const connection = new MDevice(discovered.deviceContext);
+      const security = await MDriver.retrieveTokenAndKeyFromCloud(connection, this.cloudContext(data));
+      return completeRepair(security, data.provider ?? "nethomeplus");
     });
   }
 }

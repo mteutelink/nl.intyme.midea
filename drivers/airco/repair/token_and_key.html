@@ -16,10 +16,14 @@
 				Homey.error(error);
 			} else if (!deviceStoreValues) {
 				Homey.error(Homey.__("repair.error_repairing_device"));
-			} else if (deviceStoreValues) {
+			} else if (deviceStoreValues.repaired) {
+				return;
+			} else if (deviceStoreValues.credentialsRejected) {
+				Homey.showView("login_credentials");
+			} else {
 				document.getElementById("ipaddress").value = deviceStoreValues.host;
-				document.getElementById("token").value = deviceStoreValues.token;
-				document.getElementById("key").value = deviceStoreValues.key;
+				document.getElementById("token").value = deviceStoreValues.token || "";
+				document.getElementById("key").value = deviceStoreValues.key || "";
 			}
 		})
 

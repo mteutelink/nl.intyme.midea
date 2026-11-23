@@ -11,30 +11,78 @@ export class MideaDevice extends Homey.Device {
   private _failureCount: number = 0;
   private _capabilities: DeviceCapabilities | null = null;
   
+  private _addressRecovery?: Promise<boolean>;
+
+  public recoverAddress(candidate?: MDevice): Promise<boolean> {
+    if (!this._addressRecovery) {
+      this._addressRecovery = this._recoverAddress(candidate).finally(() => {
+        this._addressRecovery = undefined;
+      });
+    }
+    return this._addressRecovery;
+  }
+
+  private async _recoverAddress(candidate?: MDevice): Promise<boolean> {
+    const { id } = this.getData();
+    const { host, port, token, key } = this.getStore();
+    if (!token || !key) return false;
+    const found = candidate ?? (await MDriver.listDevices()).find(device => device.deviceContext.id === id);
+    if (!found || found.deviceContext.id !== id) return false;
+    const next = found.deviceContext;
+    if (!candidate && next.host === host && next.port === port) return false;
+
+    const previous = this._device;
+    let adopted = false;
+    try {
+      await found.authenticate(new LANSecurityContext(token, key));
+      const stored = this.getStore();
+      if (this._device !== previous || stored.host !== host || stored.port !== port
+          || stored.token !== token || stored.key !== key) return false;
+      if (next.host !== host) await this.setStoreValue("host", next.host);
+      if (next.port !== port) await this.setStoreValue("port", next.port);
+      previous?.close();
+      this._device = found;
+      adopted = true;
+      return true;
+    } finally {
+      if (!adopted) found.close();
+    }
+  }
+
   /**
    * onInit is called when the device is initialized.
    */
-  async onInit() {
+  async onInit(connectedDevice?: MDevice) {
     this.log('Midea AC [' + this.getName() + '] initializing ...');
     this._failureCount = 0;
+    if (this._intervalId) this.homey.clearInterval(this._intervalId);
+    if (!connectedDevice) this._device?.close();
 
     try {
-      const deviceContext: MDeviceContext = new MDeviceContext();
-      deviceContext.id = this.getData().id;
-      deviceContext.macAddress = this.getData().macAddress;
-      deviceContext.udpId = this.getData().udpId;
-      deviceContext.host = this.getStore().host;
-      deviceContext.port = this.getStore().port;
-      this._device = new MDevice(deviceContext);
+      if (connectedDevice) {
+        this._device = connectedDevice;
+      } else {
+        const deviceContext: MDeviceContext = new MDeviceContext();
+        deviceContext.id = this.getData().id;
+        deviceContext.macAddress = this.getData().macAddress;
+        deviceContext.udpId = this.getData().udpId;
+        deviceContext.host = this.getStore().host;
+        deviceContext.port = this.getStore().port;
+        this._device = new MDevice(deviceContext);
 
-      // RETRIEVE TOKEN AND KEY FROM USERNAME PASSWORD IF NOT ADDED DURING PAIRING
-      if (!this.getStore().token || !this.getStore().key) {
-        let cloudSecurityContext: CloudSecurityContext =  new CloudSecurityContext(this.getStore().username, this.getStore().password);
-        let lanSecurityContext: LANSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(this._device, cloudSecurityContext);
-        this.setStoreValue("token",  lanSecurityContext.token);
-        this.setStoreValue("key",  lanSecurityContext.key);
+        // RETRIEVE TOKEN AND KEY FROM USERNAME PASSWORD IF NOT ADDED DURING PAIRING
+        if (!this.getStore().token || !this.getStore().key) {
+          let cloudSecurityContext: CloudSecurityContext =  new CloudSecurityContext(this.getStore().username, this.getStore().password);
+          let lanSecurityContext: LANSecurityContext = await MDriver.retrieveTokenAndKeyFromCloud(this._device, cloudSecurityContext);
+          await this.setStoreValue("token",  lanSecurityContext.token);
+          await this.setStoreValue("key",  lanSecurityContext.key);
+        }
+        try {
+          await this._device.authenticate(new LANSecurityContext(this.getStore().token, this.getStore().key));
+        } catch (error) {
+          if (!await this.recoverAddress()) throw error;
+        }
       }
-      await this._device.authenticate(new LANSecurityContext(this.getStore().token, this.getStore().key));
 
       await this._loadCapabilities();
 
@@ -49,8 +97,8 @@ export class MideaDevice extends Homey.Device {
       if (this.hasCapability("thermostat_freeze_protection")) this.registerCapabilityListener("thermostat_freeze_protection", async (value, opts) => { return this.onCapability("thermostat_freeze_protection", value, opts); });
 
       // INITIALLY UPDATE STATE AND SET DEVICE TO AVAILABLE
-      await this._refreshState();
-      this.setAvailable();       
+      await this._refreshState(true);
+      await this.setAvailable();
 
       // INITIALIZE POLLING
       const settings = this.getSettings();
@@ -60,7 +108,8 @@ export class MideaDevice extends Homey.Device {
       this.log('Midea AC [' + this.getName() + '] initialized successfully'); 
     } catch (err) {
       this.error("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
-      this.setUnavailable("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+      await this.setUnavailable("Cannot initialize device[" + this.getName() + "]: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+      if (connectedDevice) throw err;
     }
   }
 
@@ -107,7 +156,6 @@ export class MideaDevice extends Homey.Device {
       try {
         await this._refreshState();
       } catch (err) {
-        this.homey.clearInterval(this._intervalId);
         this.error("Error during polling: " + (err instanceof Error ? err.message : JSON.stringify(err)));
         this.setUnavailable("Device [" + this.getName() + "] is unavailable; failure count: " + this._failureCount);
       }
@@ -117,22 +165,30 @@ export class MideaDevice extends Homey.Device {
   /**
    * _refreshState is called when the device state has to be updated.
    */
-  private async _refreshState() {
+  private async _refreshState(initializing = false) {
     if (this._updatingState) {
       this.log("Skipping state refresh because another update is in progress");
       return;
     }
 
+    this._updatingState = true;
     try {
       // EXECUTE THE GETSTATECOMMAND TO RETREIVE THE STATE AND REFRESH HOMEY'S DEVICE STATE
-      const state: DeviceState = await new GetStateCommand(this._device).execute();
+      let state: DeviceState;
+      try {
+        state = await new GetStateCommand(this._device).execute();
+      } catch (error) {
+        if (!await this.recoverAddress()) throw error;
+        state = await new GetStateCommand(this._device).execute();
+      }
       this._updateState(state);
+      if (this._failureCount >= this._maximumFailureCount) await this.setAvailable();
 
       // AT THS STAGE REFRESHING HAS BEEN SUCCESFUL, WHICH RESETS THE FAILURE COUNT
       this._failureCount = 0;
     } catch (err) {
-      // AN ERROR HAS OCCURED; INCREASE FAILURE COUNT AND CHECK IF THE MAXIMUM NUMBER OF ERRORS HAS BEEN REACHED
-      // IF SO, STOP POLLING AND SET DEVICE UNAVAILABLE ELSE, LOG THE ERROR AND RETRY
+      if (initializing) throw err;
+      // Keep polling so the device can become available again after a network outage.
       this._failureCount++;   
       this.error("Error during polling of device [" + this.getName() + "]; failure count = " + this._failureCount + " : " + (err instanceof Error ? err.message : JSON.stringify(err)));
       if (this._failureCount < this._maximumFailureCount) {
@@ -140,6 +196,8 @@ export class MideaDevice extends Homey.Device {
       } else { 
         throw new Error("Device [" + this.getName() + "] is failing multiple times; failure count: " + this._failureCount);
       }
+    } finally {
+      this._updatingState = false;
     }
   }
 
@@ -254,6 +312,7 @@ export class MideaDevice extends Homey.Device {
    */
   async onDeleted() {
     this.homey.clearInterval(this._intervalId);
+    this._device?.close();
     this.log('Midea AC [' + this.getName() + '] has been deleted');
   }
 
