@@ -1,0 +1,47 @@
+{
+  "name": {
+    "en": "Airconditioning (Infrared)",
+    "nl": "Airconditioning (infrarood)"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "onoff",
+    "target_temperature",
+    "thermostat_mode",
+    "thermostat_fan_speed"
+  ],
+  "capabilitiesOptions": {
+    "target_temperature": {
+      "min": 17,
+      "max": 30,
+      "step": 1
+    }
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "infrared"
+  ],
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "options": {
+        "singular": true
+      },
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/driver-small.png",
+    "large": "{{driverAssetsPath}}/images/driver-large.png",
+    "xlarge": "{{driverAssetsPath}}/images/driver-xlarge.png"
+  }
+}
